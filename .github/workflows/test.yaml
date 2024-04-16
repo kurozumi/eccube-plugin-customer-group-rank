@@ -2,8 +2,8 @@ name: CI/CD for EC-CUBE4 Plugin
 on: [workflow_dispatch, pull_request]
 env:
   PLUGIN_CODE: CustomerGroupRank42
-  MAIN_PLUGIN_CODE: CustomerGroup42
-  MAIN_PLUGIN_BRANCH: '4.2'
+  CUSTOMER_GROUP_CODE: CustomerGroup42
+  CUSTOMER_GROUP_BRANCH: '4.2'
   APP_ENV: 'test'
   APP_DEBUG: 0
 jobs:
