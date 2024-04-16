@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * This file is part of CustomerGroupRank42
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
@@ -11,7 +12,6 @@
  */
 
 namespace Plugin\CustomerGroupRank42\Form\Extension\Admin;
-
 
 use Eccube\Form\Type\PriceType;
 use Plugin\CustomerGroup42\Form\Type\Admin\GroupType;
@@ -34,8 +34,8 @@ class GroupTypeExtension extends AbstractTypeExtension
                         'message' => 'form_error.numeric_only',
                     ]),
                     new Range([
-                        'min' => 1
-                    ])
+                        'min' => 1,
+                    ]),
                 ],
             ])
             ->add('buyTotal', PriceType::class, [
@@ -43,18 +43,10 @@ class GroupTypeExtension extends AbstractTypeExtension
                 'required' => false,
                 'constraints' => [
                     new Range([
-                        'min' => 1
-                    ])
+                        'min' => 1,
+                    ]),
                 ],
             ]);
-    }
-
-    /**
-     * @return string
-     */
-    public function getExtendedType(): string
-    {
-        return GroupType::class;
     }
 
     /**

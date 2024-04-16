@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * This file is part of CustomerGroupRank42
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
@@ -12,7 +13,6 @@
 
 namespace Plugin\CustomerGroupRank42\Repository\QueryCustomizer;
 
-
 use Doctrine\ORM\QueryBuilder;
 use Eccube\Doctrine\Query\QueryCustomizer;
 use Eccube\Util\StringUtil;
@@ -20,12 +20,11 @@ use Plugin\CustomerGroup42\Repository\QueryKey;
 
 class GroupSearchCustomizer implements QueryCustomizer
 {
-
     public function customize(QueryBuilder $builder, $params, $queryKey)
     {
         if (
-            isset($params['buyTimes']) && isset($params['buyTotal']) &&
-            StringUtil::isNotBlank($params['buyTimes']) && StringUtil::isNotBlank($params['buyTotal'])
+            isset($params['buyTimes']) && isset($params['buyTotal'])
+            && StringUtil::isNotBlank($params['buyTimes']) && StringUtil::isNotBlank($params['buyTotal'])
         ) {
             $builder
                 ->where('g.buyTimes <= :buyTimes')

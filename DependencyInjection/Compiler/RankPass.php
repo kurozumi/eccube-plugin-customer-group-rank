@@ -1,17 +1,17 @@
 <?php
-/**
- * This file is part of CustomerGroupRank42
+
+/*
+ * This file is part of EC-CUBE
  *
- * Copyright(c) Akira Kurozumi <info@a-zumi.net>
+ * Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
  *
- * https://a-zumi.net
+ * http://www.ec-cube.co.jp/
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace Plugin\CustomerGroupRank42\DependencyInjection\Compiler;
-
 
 use Plugin\CustomerGroupRank42\Service\Rank\Context;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -23,14 +23,14 @@ class RankPass implements CompilerPassInterface
 {
     use PriorityTaggedServiceTrait;
 
-    const TAG = 'plugin.customer.group.rank';
+    public const TAG = 'plugin.customer.group.rank';
 
     public function process(ContainerBuilder $container)
     {
         $context = $container->findDefinition(Context::class);
 
         foreach ($this->findAndSortTaggedServices(self::TAG, $container) as $id) {
-            $context->addMethodCall('addRank', [new Reference($id)]);
+            $context->addMethodCall('addRank', [$id]);
         }
     }
 }

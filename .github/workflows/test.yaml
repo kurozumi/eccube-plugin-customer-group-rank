@@ -1,22 +1,20 @@
 name: CI/CD for EC-CUBE4 Plugin
 on: [workflow_dispatch, pull_request]
 env:
-  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   PLUGIN_CODE: CustomerGroupRank42
-  PLUGIN_BRANCH: '4.2'
   MAIN_PLUGIN_CODE: CustomerGroup42
   MAIN_PLUGIN_BRANCH: '4.2'
   APP_ENV: 'test'
   APP_DEBUG: 0
 jobs:
-  phpunit:
-    name: PHPUnit
-    runs-on: ubuntu-latest
+  run-on-linux:
+    name: Run on Linux
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        eccube-versions: ['4.2']
-        php-versions: [ '7.4', '8.0', '8.1' ]
+        eccube-versions: [ '4.2', '4.3' ]
+        php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
         database: [ 'mysql', 'mysql8', 'pgsql' ]
         include:
           - database: mysql
@@ -31,6 +29,15 @@ jobs:
             database_url: postgres://postgres:password@127.0.0.1:5432/eccube_db
             database_server_version: 14
             database_charset: utf8
+        exclude:
+          - eccube-versions: 4.2
+            php-versions: 8.2
+          - eccube-versions: 4.2
+            php-versions: 8.3
+          - eccube-versions: 4.3
+            php-versions: 7.4
+          - eccube-versions: 4.3
+            php-versions: 8.0
 
     services:
       mysql:
@@ -64,29 +71,29 @@ jobs:
           repository: EC-CUBE/ec-cube
           ref: ${{ matrix.eccube-versions }}
 
+      - name: Checkout CustomerGroup
+        uses: actions/checkout@v4
+        with:
+          repository: kurozumi/CustomerGroup
+          ref: ${{ env.CUSTOMER_GROUP_BRANCH }}
+          path: app/Plugin/${{ env.CUSTOMER_GROUP_CODE }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: app/Plugin/${{ env.PLUGIN_CODE }}
+
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, xml, ctype, iconv, mysql, intl
+          extensions: mbstring, xml, ctype, iconv, mysql, intl, :xdebug
           tools: composer:v2
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        run: |
-          composer install --no-progress --prefer-dist --optimize-autoloader
+      - name: Initialize Composer
+        uses: ./.github/actions/composer
 
       - name: Setup EC-CUBE
         run: |
@@ -100,12 +107,10 @@ jobs:
           DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
           DATABASE_CHARSET: ${{ matrix.database_charset }}
 
-      - name: Setup CustomerGroup
+      - name: Setup CustomerGroup Plugin
         run: |
-          git clone -b ${{ env.MAIN_PLUGIN_BRANCH }} https://$PERSONAL_ACCESS_TOKEN:x-oauth-basic@github.com/kurozumi/CustomerGroup.git app/Plugin/${{ env.MAIN_PLUGIN_CODE }}
-          bin/console eccube:plugin:install --code ${{ env.MAIN_PLUGIN_CODE }}
-          bin/console cache:clear --no-warmup
-          bin/console eccube:plugin:enable --code ${{ env.MAIN_PLUGIN_CODE }}
+          bin/console eccube:plugin:install --code ${{ env.CUSTOMER_GROUP_CODE }}
+          bin/console eccube:plugin:enable --code ${{ env.CUSTOMER_GROUP_CODE }}
         env:
           APP_ENV: ${{ env.APP_ENV }}
           APP_DEBUG: ${{ env.APP_DEBUG }}
@@ -113,18 +118,10 @@ jobs:
           DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
           DATABASE_CHARSET: ${{ matrix.database_charset }}
 
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          path: app/Plugin/${{ env.PLUGIN_CODE }}
-          ref: ${{ env.PLUGIN_BRANCH }}
-
       - name: Setup Plugin
         run: |
           bin/console eccube:plugin:install --code ${{ env.PLUGIN_CODE }}
-          bin/console cache:clear --no-warmup
           bin/console eccube:plugin:enable --code ${{ env.PLUGIN_CODE }}
-          bin/console cache:clear --no-warmup
         env:
           APP_ENV: ${{ env.APP_ENV }}
           APP_DEBUG: ${{ env.APP_DEBUG }}
@@ -134,8 +131,8 @@ jobs:
 
       - name: Run Tests
         run: |
-          bin/console cache:clear --no-warmup
-          bin/phpunit -c app/Plugin/${{ env.PLUGIN_CODE }}/phpunit.xml.dist app/Plugin/${{ env.PLUGIN_CODE }}/Tests
+          rm -rf var/cache
+          ./vendor/bin/phpunit -c app/Plugin/${{ env.PLUGIN_CODE }}/phpunit.xml.dist app/Plugin/${{ env.PLUGIN_CODE }}/Tests
         env:
           APP_ENV: ${{ env.APP_ENV }}
           APP_DEBUG: ${{ env.APP_DEBUG }}
@@ -145,7 +142,6 @@ jobs:
 
       - name: Update Plugin
         run: |
-          bin/console cache:clear --no-warmup
           bin/console eccube:plugin:update ${{ env.PLUGIN_CODE }}
         env:
           APP_ENV: ${{ env.APP_ENV }}
@@ -156,8 +152,7 @@ jobs:
 
       - name: Uninstall Plugin
         run: |
-          bin/console cache:clear --no-warmup
-          bin/console eccube:plugin:uninstall --code=${{ env.PLUGIN_CODE }}
+          bin/console eccube:plugin:uninstall --code ${{ env.PLUGIN_CODE }}
         env:
           APP_ENV: ${{ env.APP_ENV }}
           APP_DEBUG: ${{ env.APP_DEBUG }}

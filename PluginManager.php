@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * This file is part of CustomerGroupRank42
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
@@ -12,11 +13,10 @@
 
 namespace Plugin\CustomerGroupRank42;
 
-
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Plugin;
 use Eccube\Plugin\AbstractPluginManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PluginManager extends AbstractPluginManager

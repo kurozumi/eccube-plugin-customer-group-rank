@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * This file is part of CustomerGroupRank42
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
@@ -17,7 +18,6 @@ use Eccube\Annotation\EntityExtension;
 
 /**
  * Trait GroupTrait
- * @package Plugin\CustomerGroupRank42\Entity
  *
  * @EntityExtension("Plugin\CustomerGroup42\Entity\Group")
  */
@@ -47,6 +47,7 @@ trait GroupTrait
 
     /**
      * @param float|null $buyTimes
+     *
      * @return $this
      */
     public function setBuyTimes(?float $buyTimes): self
@@ -66,6 +67,7 @@ trait GroupTrait
 
     /**
      * @param float|null $buyTotal
+     *
      * @return $this
      */
     public function setBuyTotal(?float $buyTotal): self
