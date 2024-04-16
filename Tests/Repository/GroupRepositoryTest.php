@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * This file is part of CustomerGroupRank42
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
@@ -11,7 +12,6 @@
  */
 
 namespace Plugin\CustomerGroupRank42\Tests\Repository;
-
 
 use Eccube\Tests\EccubeTestCase;
 use Plugin\CustomerGroup42\Repository\GroupRepository;
@@ -74,7 +74,7 @@ class GroupRepositoryTest extends EccubeTestCase
         // 絞り込み条件
         $this->searchData = [
             'buyTimes' => $customer->getBuyTimes(),
-            'buyTotal' => $customer->getBuyTotal()
+            'buyTotal' => $customer->getBuyTotal(),
         ];
 
         $this->scenario();

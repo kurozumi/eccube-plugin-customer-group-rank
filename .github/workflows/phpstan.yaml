@@ -1,21 +1,28 @@
 name: PHPStan
 on: [workflow_dispatch, pull_request]
 env:
-  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   PLUGIN_CODE: CustomerGroupRank42
-  PLUGIN_BRANCH: '4.2'
   CUSTOMER_GROUP_CODE: CustomerGroup42
   CUSTOMER_GROUP_BRANCH: '4.2'
 
 jobs:
   phpstan:
     name: PHPStan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        eccube-versions: ['4.2']
-        php-versions: [ '7.4', '8.0', '8.1' ]
+        eccube-versions: ['4.2', '4.3']
+        php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
+        exclude:
+          - eccube-versions: 4.2
+            php-versions: 8.2
+          - eccube-versions: 4.2
+            php-versions: 8.3
+          - eccube-versions: 4.3
+            php-versions: 7.4
+          - eccube-versions: 4.3
+            php-versions: 8.0
 
     steps:
       - name: Checkout EC-CUBE
@@ -24,6 +31,20 @@ jobs:
           repository: EC-CUBE/ec-cube
           ref: ${{ matrix.eccube-versions }}
 
+      - name: Checkout CustomerGroup
+        uses: actions/checkout@v4
+        with:
+          repository: kurozumi/CustomerGroup
+          ref: ${{ env.CUSTOMER_GROUP_BRANCH }}
+          path: app/Plugin/${{ env.CUSTOMER_GROUP_CODE }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: app/Plugin/${{ env.PLUGIN_CODE }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
         with:
@@ -31,34 +52,10 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, mysql, intl
           tools: composer:v2
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        run: |
-          composer install --no-progress --prefer-dist --optimize-autoloader
-
-      - name: Setup CustomerGroup
-        run: |
-          git clone -b ${{ env.CUSTOMER_GROUP_BRANCH }} https://$PERSONAL_ACCESS_TOKEN:x-oauth-basic@github.com/kurozumi/CustomerGroup.git app/Plugin/${{ env.CUSTOMER_GROUP_CODE }}
-
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          path: app/Plugin/${{ env.PLUGIN_CODE }}
-          ref: ${{ env.PLUGIN_BRANCH }}
+      - name: Initialize Composer
+        uses: ./.github/actions/composer
 
       - name: PHPStan
         run: |
           composer require phpstan/phpstan --dev
-          vendor/bin/phpstan analyze app/Plugin/${{ env.PLUGIN_CODE }} -c "app/Plugin/${{ env.PLUGIN_CODE }}/phpstan.neon" --error-format=github
+          ./vendor/bin/phpstan analyze app/Plugin/${{ env.PLUGIN_CODE }} -c "app/Plugin/${{ env.PLUGIN_CODE }}/phpstan.neon" --error-format=github

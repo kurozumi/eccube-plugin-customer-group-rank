@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * This file is part of CustomerGroupRank42
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
@@ -11,7 +12,6 @@
  */
 
 namespace Plugin\CustomerGroupRank42\Service\Rank;
-
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +34,7 @@ class Rank implements RankInterface
      * 優先度が最上位のグループを会員に設定する
      *
      * @param Customer $customer
+     *
      * @return void
      */
     public function decide(Customer $customer): void
@@ -54,13 +55,14 @@ class Rank implements RankInterface
      * 会員に適用可能なグループ一覧を取得
      *
      * @param Customer $customer
+     *
      * @return ArrayCollection
      */
     protected function getGroups(Customer $customer): ArrayCollection
     {
         $searchData = [
             'buyTimes' => $customer->getBuyTimes(),
-            'buyTotal' => $customer->getBuyTotal()
+            'buyTotal' => $customer->getBuyTotal(),
         ];
         $groups = $this->entityManager->getRepository(Group::class)->getQueryBuilderBySearchData($searchData)
             ->getQuery()

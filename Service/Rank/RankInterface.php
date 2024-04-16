@@ -1,5 +1,6 @@
 <?php
-/**
+
+/*
  * This file is part of CustomerGroupRank42
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
@@ -11,7 +12,6 @@
  */
 
 namespace Plugin\CustomerGroupRank42\Service\Rank;
-
 
 use Eccube\Entity\Customer;
 
