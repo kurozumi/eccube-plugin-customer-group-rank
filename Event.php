@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -18,13 +18,21 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Event implements EventSubscriberInterface
 {
-    public static function getSubscribedEvents()
+    /**
+     * @return string[]
+     */
+    public static function getSubscribedEvents(): array
     {
         return [
             '@CustomerGroup42/admin/Customer/Group/edit.twig' => 'onTemplateAdminCustomerGroupEdit',
         ];
     }
 
+    /**
+     * @param TemplateEvent $event
+     *
+     * @return void
+     */
     public function onTemplateAdminCustomerGroupEdit(TemplateEvent $event): void
     {
         $event->addSnippet('@CustomerGroupRank42/admin/Customer/Group/edit.twig');

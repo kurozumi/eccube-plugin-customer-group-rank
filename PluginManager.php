@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -21,7 +21,16 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PluginManager extends AbstractPluginManager
 {
-    public function enable(array $meta, ContainerInterface $container)
+    /**
+     * @param array $meta
+     * @param ContainerInterface $container
+     *
+     * @return void
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function enable(array $meta, ContainerInterface $container): void
     {
         /** @var EntityManagerInterface $entityManager */
         $entityManager = $container->get('doctrine.orm.entity_manager');

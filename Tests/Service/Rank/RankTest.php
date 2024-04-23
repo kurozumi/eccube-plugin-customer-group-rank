@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -34,7 +34,7 @@ class RankTest extends EccubeTestCase
         $this->context = static::getContainer()->get(Context::class);
     }
 
-    public function testDecide()
+    public function testDecide(): void
     {
         $group1 = $this->createGroup();
         $group1->setBuyTimes(1);

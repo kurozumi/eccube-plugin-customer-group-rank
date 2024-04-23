@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class RankPassTest extends TestCase
 {
-    public function testTestRankが追加されるか()
+    public function testTestRankが追加されるか(): void
     {
         $container = new ContainerBuilder();
         $container->register(Context::class)

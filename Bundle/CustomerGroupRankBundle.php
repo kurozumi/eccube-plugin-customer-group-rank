@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -20,7 +20,12 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class CustomerGroupRankBundle extends Bundle
 {
-    public function build(ContainerBuilder $container)
+    /**
+     * @param ContainerBuilder $container
+     *
+     * @return void
+     */
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
 

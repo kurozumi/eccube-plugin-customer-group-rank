@@ -1,16 +1,16 @@
 <?php
 
 /*
- * This file is part of EC-CUBE
+ * This file is part of CustomerGroupRank
  *
- * Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+ * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
- * http://www.ec-cube.co.jp/
+ * https://a-zumi.net
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 return [
-    \Plugin\CustomerGroupRank42\Bundle\CustomerGroupRankBundle::class => ['all' => true],
+    Plugin\CustomerGroupRank42\Bundle\CustomerGroupRankBundle::class => ['all' => true],
 ];
