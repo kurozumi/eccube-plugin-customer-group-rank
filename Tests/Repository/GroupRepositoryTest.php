@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -43,7 +43,10 @@ class GroupRepositoryTest extends EccubeTestCase
         $this->groupRepository = static::getContainer()->get(GroupRepository::class);
     }
 
-    public function scenario()
+    /**
+     * @return void
+     */
+    public function scenario(): void
     {
         $this->Results = $this->groupRepository->getQueryBuilderBySearchData($this->searchData)
             ->getQuery()
@@ -57,9 +60,11 @@ class GroupRepositoryTest extends EccubeTestCase
      * @param $customer_total
      * @param $expected
      *
+     * @return void
+     *
      * @dataProvider conditionProvider
      */
-    public function testランクアップ条件にマッチした会員グループが見つかるか($group_times, $group_total, $customer_times, $customer_total, $expected)
+    public function testランクアップ条件にマッチした会員グループが見つかるか($group_times, $group_total, $customer_times, $customer_total, $expected): void
     {
         $group = $this->createGroup();
         $group->setBuyTimes($group_times);
@@ -82,7 +87,10 @@ class GroupRepositoryTest extends EccubeTestCase
         self::assertCount($expected, $this->Results);
     }
 
-    public function conditionProvider()
+    /**
+     * @return array[]
+     */
+    public function conditionProvider(): array
     {
         return [
             [1, 1, 0, 0, 0],

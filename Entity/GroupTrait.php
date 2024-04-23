@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -17,8 +17,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Eccube\Annotation\EntityExtension;
 
 /**
- * Trait GroupTrait
- *
  * @EntityExtension("Plugin\CustomerGroup42\Entity\Group")
  */
 trait GroupTrait

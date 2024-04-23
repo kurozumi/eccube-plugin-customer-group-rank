@@ -1,11 +1,11 @@
 <?php
 
 /*
- * This file is part of EC-CUBE
+ * This file is part of CustomerGroupRank
  *
- * Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+ * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
- * http://www.ec-cube.co.jp/
+ * https://a-zumi.net
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,6 @@ use Plugin\CustomerGroupRank42\Service\Rank\Context;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PriorityTaggedServiceTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
 
 class RankPass implements CompilerPassInterface
 {
@@ -25,7 +24,12 @@ class RankPass implements CompilerPassInterface
 
     public const TAG = 'plugin.customer.group.rank';
 
-    public function process(ContainerBuilder $container)
+    /**
+     * @param ContainerBuilder $container
+     *
+     * @return void
+     */
+    public function process(ContainerBuilder $container): void
     {
         $context = $container->findDefinition(Context::class);
 

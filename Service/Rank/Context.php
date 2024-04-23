@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -17,13 +17,26 @@ use Eccube\Entity\Customer;
 
 class Context
 {
-    private $ranks = [];
+    /**
+     * @var array
+     */
+    private array $ranks = [];
 
-    public function addRank(RankInterface $rank)
+    /**
+     * @param RankInterface $rank
+     *
+     * @return void
+     */
+    public function addRank(RankInterface $rank): void
     {
         $this->ranks[] = $rank;
     }
 
+    /**
+     * @param Customer $customer
+     *
+     * @return void
+     */
     public function decide(Customer $customer): void
     {
         /** @var Rank $rank */

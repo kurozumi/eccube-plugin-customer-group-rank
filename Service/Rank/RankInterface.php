@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *

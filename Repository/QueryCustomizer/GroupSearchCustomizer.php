@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -20,7 +20,14 @@ use Plugin\CustomerGroup42\Repository\QueryKey;
 
 class GroupSearchCustomizer implements QueryCustomizer
 {
-    public function customize(QueryBuilder $builder, $params, $queryKey)
+    /**
+     * @param QueryBuilder $builder
+     * @param $params
+     * @param $queryKey
+     *
+     * @return void
+     */
+    public function customize(QueryBuilder $builder, $params, $queryKey): void
     {
         if (
             isset($params['buyTimes']) && isset($params['buyTotal'])
@@ -34,7 +41,10 @@ class GroupSearchCustomizer implements QueryCustomizer
         }
     }
 
-    public function getQueryKey()
+    /**
+     * @return string
+     */
+    public function getQueryKey(): string
     {
         return QueryKey::GROUP_SEARCH;
     }

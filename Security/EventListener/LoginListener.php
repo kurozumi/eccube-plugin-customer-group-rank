@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of CustomerGroupRank42
+ * This file is part of CustomerGroupRank
  *
  * Copyright(c) Akira Kurozumi <info@a-zumi.net>
  *
@@ -23,12 +23,12 @@ class LoginListener
     /**
      * @var Context
      */
-    private $context;
+    private Context $context;
 
     /**
      * @var EntityManagerInterface
      */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(Context $context, EntityManagerInterface $entityManager)
     {
@@ -36,7 +36,12 @@ class LoginListener
         $this->entityManager = $entityManager;
     }
 
-    public function onInteractiveLogin(InteractiveLoginEvent $event)
+    /**
+     * @param InteractiveLoginEvent $event
+     *
+     * @return void
+     */
+    public function onInteractiveLogin(InteractiveLoginEvent $event): void
     {
         $user = $event->getAuthenticationToken()->getUser();
         if (!$user instanceof Customer) {
