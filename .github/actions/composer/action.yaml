@@ -15,5 +15,6 @@ runs:
           ${{ runner.os }}-composer-
 
     - name: composer install
+      working-directory: ${{ env.WORKING_DIRECTORY }}
       run: composer install --dev --no-interaction -o --apcu-autoloader
       shell: bash
