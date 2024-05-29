@@ -2,8 +2,6 @@ name: PHPStan
 on: [workflow_dispatch, pull_request]
 env:
   PLUGIN_CODE: CustomerGroupRank42
-  CUSTOMER_GROUP_CODE: CustomerGroup42
-  CUSTOMER_GROUP_BRANCH: '4.2'
 
 jobs:
   phpstan:
@@ -26,17 +24,27 @@ jobs:
 
     steps:
       - name: Checkout EC-CUBE
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: EC-CUBE/ec-cube
           ref: ${{ matrix.eccube-versions }}
+
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, ctype, iconv, mysql, intl, :xdebug
+          tools: composer:v2
+
+      - name: Initialize Composer
+        uses: ./.github/actions/composer
 
       - name: Checkout CustomerGroup
         uses: actions/checkout@v4
         with:
           repository: kurozumi/CustomerGroup
-          ref: ${{ env.CUSTOMER_GROUP_BRANCH }}
-          path: app/Plugin/${{ env.CUSTOMER_GROUP_CODE }}
+          ref: '4.2'
+          path: app/Plugin/CustomerGroup42
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Checkout
@@ -44,16 +52,6 @@ jobs:
         with:
           path: app/Plugin/${{ env.PLUGIN_CODE }}
           ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
-        with:
-          php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, xml, ctype, iconv, mysql, intl
-          tools: composer:v2
-
-      - name: Initialize Composer
-        uses: ./.github/actions/composer
 
       - name: PHPStan
         run: |
