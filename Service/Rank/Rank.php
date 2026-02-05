@@ -20,9 +20,6 @@ use Plugin\CustomerGroup42\Entity\Group;
 
 class Rank implements RankInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
     protected EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -32,17 +29,13 @@ class Rank implements RankInterface
 
     /**
      * 優先度が最上位のグループを会員に設定する
-     *
-     * @param Customer $customer
-     *
-     * @return void
      */
     public function decide(Customer $customer): void
     {
         // 会員グループをクリアする
         $customer->getGroups()->clear();
 
-        // 対象の会員ブループが見つかったら登録
+        // 対象の会員グループが見つかったら登録
         $groups = $this->getGroups($customer);
         if ($groups->count() > 0) {
             /** @var Group $group */
@@ -53,10 +46,6 @@ class Rank implements RankInterface
 
     /**
      * 会員に適用可能なグループ一覧を取得
-     *
-     * @param Customer $customer
-     *
-     * @return ArrayCollection
      */
     protected function getGroups(Customer $customer): ArrayCollection
     {

@@ -23,12 +23,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 
 class GroupTypeExtension extends AbstractTypeExtension
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     *
-     * @return void
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -55,9 +49,6 @@ class GroupTypeExtension extends AbstractTypeExtension
             ]);
     }
 
-    /**
-     * @return iterable
-     */
     public static function getExtendedTypes(): iterable
     {
         yield GroupType::class;

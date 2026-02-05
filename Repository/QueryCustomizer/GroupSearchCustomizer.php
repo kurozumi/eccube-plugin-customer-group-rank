@@ -20,18 +20,12 @@ use Plugin\CustomerGroup42\Repository\QueryKey;
 
 class GroupSearchCustomizer implements QueryCustomizer
 {
-    /**
-     * @param QueryBuilder $builder
-     * @param $params
-     * @param $queryKey
-     *
-     * @return void
-     */
     public function customize(QueryBuilder $builder, $params, $queryKey): void
     {
         if (
-            isset($params['buyTimes']) && isset($params['buyTotal'])
-            && StringUtil::isNotBlank($params['buyTimes']) && StringUtil::isNotBlank($params['buyTotal'])
+            isset($params['buyTimes'], $params['buyTotal'])
+            && StringUtil::isNotBlank($params['buyTimes'])
+            && StringUtil::isNotBlank($params['buyTotal'])
         ) {
             $builder
                 ->where('g.buyTimes <= :buyTimes')
@@ -41,9 +35,6 @@ class GroupSearchCustomizer implements QueryCustomizer
         }
     }
 
-    /**
-     * @return string
-     */
     public function getQueryKey(): string
     {
         return QueryKey::GROUP_SEARCH;

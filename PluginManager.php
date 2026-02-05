@@ -21,15 +21,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PluginManager extends AbstractPluginManager
 {
-    /**
-     * @param array $meta
-     * @param ContainerInterface $container
-     *
-     * @return void
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
     public function enable(array $meta, ContainerInterface $container): void
     {
         /** @var EntityManagerInterface $entityManager */

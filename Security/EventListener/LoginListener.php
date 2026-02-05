@@ -20,14 +20,8 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class LoginListener
 {
-    /**
-     * @var Context
-     */
     private Context $context;
 
-    /**
-     * @var EntityManagerInterface
-     */
     private EntityManagerInterface $entityManager;
 
     public function __construct(Context $context, EntityManagerInterface $entityManager)
@@ -36,11 +30,6 @@ class LoginListener
         $this->entityManager = $entityManager;
     }
 
-    /**
-     * @param InteractiveLoginEvent $event
-     *
-     * @return void
-     */
     public function onInteractiveLogin(InteractiveLoginEvent $event): void
     {
         $user = $event->getAuthenticationToken()->getUser();
