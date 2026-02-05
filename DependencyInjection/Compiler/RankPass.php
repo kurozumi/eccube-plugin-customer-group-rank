@@ -24,11 +24,6 @@ class RankPass implements CompilerPassInterface
 
     public const TAG = 'plugin.customer.group.rank';
 
-    /**
-     * @param ContainerBuilder $container
-     *
-     * @return void
-     */
     public function process(ContainerBuilder $container): void
     {
         $context = $container->findDefinition(Context::class);

@@ -18,9 +18,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Event implements EventSubscriberInterface
 {
-    /**
-     * @return string[]
-     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -28,11 +25,6 @@ class Event implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param TemplateEvent $event
-     *
-     * @return void
-     */
     public function onTemplateAdminCustomerGroupEdit(TemplateEvent $event): void
     {
         $event->addSnippet('@CustomerGroupRank42/admin/Customer/Group/edit.twig');

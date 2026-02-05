@@ -35,19 +35,11 @@ trait GroupTrait
      */
     private $buyTotal;
 
-    /**
-     * @return float|null
-     */
     public function getBuyTimes(): ?float
     {
         return $this->buyTimes;
     }
 
-    /**
-     * @param float|null $buyTimes
-     *
-     * @return $this
-     */
     public function setBuyTimes(?float $buyTimes): self
     {
         $this->buyTimes = $buyTimes;
@@ -55,19 +47,11 @@ trait GroupTrait
         return $this;
     }
 
-    /**
-     * @return float|null
-     */
     public function getBuyTotal(): ?float
     {
         return $this->buyTotal;
     }
 
-    /**
-     * @param float|null $buyTotal
-     *
-     * @return $this
-     */
     public function setBuyTotal(?float $buyTotal): self
     {
         $this->buyTotal = $buyTotal;

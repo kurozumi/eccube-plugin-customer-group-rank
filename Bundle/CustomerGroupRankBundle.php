@@ -20,11 +20,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class CustomerGroupRankBundle extends Bundle
 {
-    /**
-     * @param ContainerBuilder $container
-     *
-     * @return void
-     */
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
