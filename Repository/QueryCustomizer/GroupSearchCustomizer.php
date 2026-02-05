@@ -28,8 +28,12 @@ class GroupSearchCustomizer implements QueryCustomizer
             && StringUtil::isNotBlank($params['buyTotal'])
         ) {
             $builder
-                ->where('g.buyTimes <= :buyTimes')
-                ->orWhere('g.buyTotal <= :buyTotal')
+                ->andWhere(
+                    $builder->expr()->orX(
+                        'g.buyTimes <= :buyTimes',
+                        'g.buyTotal <= :buyTotal'
+                    )
+                )
                 ->setParameter('buyTimes', $params['buyTimes'])
                 ->setParameter('buyTotal', $params['buyTotal']);
         }
