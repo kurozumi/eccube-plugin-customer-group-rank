@@ -17,5 +17,5 @@ use Eccube\Entity\Customer;
 
 interface RankInterface
 {
-    public function decide(Customer $customer): void;
+    public function apply(Customer $customer): void;
 }

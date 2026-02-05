@@ -35,7 +35,7 @@ class LoginListenerTest extends TestCase
         $event = new InteractiveLoginEvent(new Request(), $token);
 
         $context = $this->createMock(Context::class);
-        $context->expects(self::once())->method('decide')->with($customer);
+        $context->expects(self::once())->method('apply')->with($customer);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('flush');
@@ -54,7 +54,7 @@ class LoginListenerTest extends TestCase
         $event = new InteractiveLoginEvent(new Request(), $token);
 
         $context = $this->createMock(Context::class);
-        $context->expects(self::never())->method('decide');
+        $context->expects(self::never())->method('apply');
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('flush');

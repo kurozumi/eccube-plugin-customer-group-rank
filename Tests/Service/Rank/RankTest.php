@@ -48,7 +48,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->decide($customer);
+        $this->context->apply($customer);
 
         $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
 
@@ -68,7 +68,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->decide($customer);
+        $this->context->apply($customer);
 
         $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
 
@@ -94,7 +94,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->decide($customer);
+        $this->context->apply($customer);
 
         $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
 
