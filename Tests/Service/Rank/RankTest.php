@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests\Service;
+namespace Plugin\CustomerGroupRank42\Tests\Service\Rank;
 
 use Eccube\Entity\Customer;
 use Eccube\Tests\EccubeTestCase;
@@ -22,9 +22,6 @@ class RankTest extends EccubeTestCase
 {
     use TestCaseTrait;
 
-    /**
-     * @var Context
-     */
     protected $context;
 
     protected function setUp(): void
@@ -34,7 +31,7 @@ class RankTest extends EccubeTestCase
         $this->context = static::getContainer()->get(Context::class);
     }
 
-    public function testDecide(): void
+    public function test優先度が最上位のグループが設定される(): void
     {
         $group1 = $this->createGroup();
         $group1->setBuyTimes(1);
@@ -56,5 +53,52 @@ class RankTest extends EccubeTestCase
         $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
 
         self::assertEquals($group2, $groups->first());
+    }
+
+    public function test条件にマッチするグループがない場合はグループが空になる(): void
+    {
+        $group = $this->createGroup();
+        $group->setBuyTimes(10);
+        $group->setBuyTotal(10000);
+        $group->setSortNo(1);
+
+        $customer = $this->createCustomer();
+        $customer->setBuyTimes(0);
+        $customer->setBuyTotal(0);
+
+        $this->entityManager->flush();
+
+        $this->context->decide($customer);
+
+        $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
+
+        self::assertCount(0, $groups);
+    }
+
+    public function test既存のグループがクリアされてから新しいグループが設定される(): void
+    {
+        $group1 = $this->createGroup();
+        $group1->setBuyTimes(1);
+        $group1->setBuyTotal(1000);
+        $group1->setSortNo(1);
+
+        $group2 = $this->createGroup();
+        $group2->setBuyTimes(5);
+        $group2->setBuyTotal(5000);
+        $group2->setSortNo(2);
+
+        $customer = $this->createCustomer();
+        $customer->setBuyTimes(1);
+        $customer->setBuyTotal(1000);
+        $customer->addGroup($group2);
+
+        $this->entityManager->flush();
+
+        $this->context->decide($customer);
+
+        $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
+
+        self::assertCount(1, $groups);
+        self::assertEquals($group1, $groups->first());
     }
 }

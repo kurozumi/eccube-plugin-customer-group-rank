@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class RankPassTest extends TestCase
 {
-    public function testTestRankが追加されるか(): void
+    public function testタグ付きサービスがContextに登録される(): void
     {
         $container = new ContainerBuilder();
         $container->register(Context::class)
@@ -41,6 +41,24 @@ class RankPassTest extends TestCase
         $ranks = $prop->getValue($context);
 
         self::assertCount(1, $ranks);
+    }
+
+    public function testタグ付きサービスが未登録の場合はranksが空(): void
+    {
+        $container = new ContainerBuilder();
+        $container->register(Context::class)
+            ->setPublic(true);
+
+        $container->addCompilerPass(new RankPass());
+        $container->compile();
+
+        $context = $container->get(Context::class);
+        $reflection = new \ReflectionObject($context);
+        $prop = $reflection->getProperty('ranks');
+        $prop->setAccessible(true);
+        $ranks = $prop->getValue($context);
+
+        self::assertCount(0, $ranks);
     }
 }
 
