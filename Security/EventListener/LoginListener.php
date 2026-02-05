@@ -37,7 +37,7 @@ class LoginListener
             return;
         }
 
-        $this->context->decide($user);
+        $this->context->apply($user);
         $this->entityManager->flush();
     }
 }

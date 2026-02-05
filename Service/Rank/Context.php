@@ -24,11 +24,11 @@ class Context
         $this->ranks[] = $rank;
     }
 
-    public function decide(Customer $customer): void
+    public function apply(Customer $customer): void
     {
         /** @var Rank $rank */
         foreach ($this->ranks as $rank) {
-            $rank->decide($customer);
+            $rank->apply($customer);
         }
     }
 }

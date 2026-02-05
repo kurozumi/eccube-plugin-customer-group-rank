@@ -30,7 +30,7 @@ class Rank implements RankInterface
     /**
      * 優先度が最上位のグループを会員に設定する
      */
-    public function decide(Customer $customer): void
+    public function apply(Customer $customer): void
     {
         // 会員グループをクリアする
         $customer->getGroups()->clear();

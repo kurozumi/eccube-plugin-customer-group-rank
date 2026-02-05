@@ -25,16 +25,16 @@ class ContextTest extends TestCase
         $context = new Context();
 
         $rank1 = $this->createMock(RankInterface::class);
-        $rank1->expects(self::once())->method('decide');
+        $rank1->expects(self::once())->method('apply');
 
         $rank2 = $this->createMock(RankInterface::class);
-        $rank2->expects(self::once())->method('decide');
+        $rank2->expects(self::once())->method('apply');
 
         $context->addRank($rank1);
         $context->addRank($rank2);
 
         $customer = $this->createMock(Customer::class);
-        $context->decide($customer);
+        $context->apply($customer);
     }
 
     public function testRank未登録の場合はエラーにならない(): void
@@ -42,7 +42,7 @@ class ContextTest extends TestCase
         $context = new Context();
         $customer = $this->createMock(Customer::class);
 
-        $context->decide($customer);
+        $context->apply($customer);
 
         self::assertTrue(true);
     }
