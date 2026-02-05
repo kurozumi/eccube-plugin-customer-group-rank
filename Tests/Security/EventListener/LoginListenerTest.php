@@ -19,6 +19,7 @@ use Eccube\Entity\Member;
 use PHPUnit\Framework\TestCase;
 use Plugin\CustomerGroupRank42\Security\EventListener\LoginListener;
 use Plugin\CustomerGroupRank42\Service\Rank\Context;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
@@ -31,8 +32,7 @@ class LoginListenerTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($customer);
 
-        $event = $this->createMock(InteractiveLoginEvent::class);
-        $event->method('getAuthenticationToken')->willReturn($token);
+        $event = new InteractiveLoginEvent(new Request(), $token);
 
         $context = $this->createMock(Context::class);
         $context->expects(self::once())->method('decide')->with($customer);
@@ -51,8 +51,7 @@ class LoginListenerTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($member);
 
-        $event = $this->createMock(InteractiveLoginEvent::class);
-        $event->method('getAuthenticationToken')->willReturn($token);
+        $event = new InteractiveLoginEvent(new Request(), $token);
 
         $context = $this->createMock(Context::class);
         $context->expects(self::never())->method('decide');
