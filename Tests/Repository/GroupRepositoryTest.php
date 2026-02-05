@@ -21,19 +21,6 @@ class GroupRepositoryTest extends EccubeTestCase
 {
     use TestCaseTrait;
 
-    /**
-     * @var array
-     */
-    protected $Results;
-
-    /**
-     * @var array
-     */
-    protected $searchData = [];
-
-    /**
-     * @var GroupRepository
-     */
     protected $groupRepository;
 
     protected function setUp(): void
@@ -44,59 +31,35 @@ class GroupRepositoryTest extends EccubeTestCase
     }
 
     /**
-     * @return void
-     */
-    public function scenario(): void
-    {
-        $this->Results = $this->groupRepository->getQueryBuilderBySearchData($this->searchData)
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * @param $group_times
-     * @param $group_total
-     * @param $customer_times
-     * @param $customer_total
-     * @param $expected
-     *
-     * @return void
-     *
      * @dataProvider conditionProvider
      */
-    public function testランクアップ条件にマッチした会員グループが見つかるか($group_times, $group_total, $customer_times, $customer_total, $expected): void
+    public function testランクアップ条件にマッチした会員グループが見つかるか($groupTimes, $groupTotal, $customerTimes, $customerTotal, $expected): void
     {
         $group = $this->createGroup();
-        $group->setBuyTimes($group_times);
-        $group->setBuyTotal($group_total);
+        $group->setBuyTimes($groupTimes);
+        $group->setBuyTotal($groupTotal);
 
         $customer = $this->createCustomer();
-        $customer->setBuyTimes($customer_times);
-        $customer->setBuyTotal($customer_total);
+        $customer->setBuyTimes($customerTimes);
+        $customer->setBuyTotal($customerTotal);
 
         $this->entityManager->flush();
 
-        // 絞り込み条件
-        $this->searchData = [
+        $results = $this->groupRepository->getQueryBuilderBySearchData([
             'buyTimes' => $customer->getBuyTimes(),
             'buyTotal' => $customer->getBuyTotal(),
-        ];
+        ])->getQuery()->getResult();
 
-        $this->scenario();
-
-        self::assertCount($expected, $this->Results);
+        self::assertCount($expected, $results);
     }
 
-    /**
-     * @return array[]
-     */
     public function conditionProvider(): array
     {
         return [
-            [1, 1, 0, 0, 0],
-            [10, 1000, 10, 10, 1],
-            [10, 1000, 9, 1000, 1],
-            [10, 1000, 10, 1000, 1],
+            '購入回数・金額ともに未達' => [1, 1, 0, 0, 0],
+            '購入回数のみ達成' => [10, 1000, 10, 10, 1],
+            '購入金額のみ達成' => [10, 1000, 9, 1000, 1],
+            '購入回数・金額ともに達成' => [10, 1000, 10, 1000, 1],
         ];
     }
 }
