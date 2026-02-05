@@ -43,6 +43,35 @@ class GroupSearchCustomizerTest extends EccubeTestCase
         self::assertStringContainsString('g.buyTotal <= :buyTotal', $dql);
     }
 
+    public function test想定外のパラメータが含まれていても指定条件のみ追加されること(): void
+    {
+        $customizer = new GroupSearchCustomizer();
+
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('g')
+            ->from(Group::class, 'g')
+            ->where('g.id = :id')
+            ->setParameter('id', 1);
+
+        $customizer->customize($qb, [
+            'buyTimes' => 10,
+            'buyTotal' => 1000,
+            'name' => 'test',
+            'unknown' => 'value',
+        ], '');
+
+        $dql = $qb->getDQL();
+
+        // 既存の条件が保持されていること
+        self::assertStringContainsString('g.id = :id', $dql);
+        // 指定条件のみ追加されていること
+        self::assertStringContainsString('g.buyTimes <= :buyTimes', $dql);
+        self::assertStringContainsString('g.buyTotal <= :buyTotal', $dql);
+        // 想定外のパラメータが条件に含まれないこと
+        self::assertStringNotContainsString('name', $dql);
+        self::assertStringNotContainsString('unknown', $dql);
+    }
+
     public function testパラメータが未指定の場合は条件が追加されないこと(): void
     {
         $customizer = new GroupSearchCustomizer();
