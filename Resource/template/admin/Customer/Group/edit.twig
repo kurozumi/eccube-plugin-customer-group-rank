@@ -2,6 +2,8 @@
     $(function () {
         $('.card-body').append($('#customer_group_rank_buy_times'));
         $('.card-body').append($('#customer_group_rank_buy_total'));
+        $('.card-body').append($('#customer_group_rank_delivery_free_amount'));
+        $('.card-body').append($('#customer_group_rank_delivery_free_quantity'));
     });
 </script>
 <div class="row mb-2" id="customer_group_rank_buy_times">
@@ -32,6 +34,38 @@
                 </div>
             </div>
             {{ form_errors(form.buyTotal) }}
+        </div>
+    </div>
+</div>
+
+<div class="row mb-2" id="customer_group_rank_delivery_free_amount">
+    <div class="col-3">
+        <span>{{ '送料無料条件（税込み金額）'|trans }}</span>
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <div>
+                    {{ form_widget(form.deliveryFreeAmount) }}
+                </div>
+            </div>
+            {{ form_errors(form.deliveryFreeAmount) }}
+        </div>
+    </div>
+</div>
+
+<div class="row mb-2" id="customer_group_rank_delivery_free_quantity">
+    <div class="col-3">
+        <span>{{ '送料無料条件（数量）'|trans }}</span>
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <div>
+                    {{ form_widget(form.deliveryFreeQuantity) }}
+                </div>
+            </div>
+            {{ form_errors(form.deliveryFreeQuantity) }}
         </div>
     </div>
 </div>

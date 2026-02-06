@@ -35,6 +35,20 @@ trait GroupTrait
      */
     private $buyTotal;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type="decimal", precision=12, scale=2, nullable=true, options={"unsigned":true})
+     */
+    private $deliveryFreeAmount;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type="decimal", precision=10, scale=0, nullable=true, options={"unsigned":true})
+     */
+    private $deliveryFreeQuantity;
+
     public function getBuyTimes(): ?float
     {
         return $this->buyTimes;
@@ -55,6 +69,30 @@ trait GroupTrait
     public function setBuyTotal(?float $buyTotal): self
     {
         $this->buyTotal = $buyTotal;
+
+        return $this;
+    }
+
+    public function getDeliveryFreeAmount(): ?float
+    {
+        return $this->deliveryFreeAmount;
+    }
+
+    public function setDeliveryFreeAmount(?float $deliveryFreeAmount): self
+    {
+        $this->deliveryFreeAmount = $deliveryFreeAmount;
+
+        return $this;
+    }
+
+    public function getDeliveryFreeQuantity(): ?float
+    {
+        return $this->deliveryFreeQuantity;
+    }
+
+    public function setDeliveryFreeQuantity(?float $deliveryFreeQuantity): self
+    {
+        $this->deliveryFreeQuantity = $deliveryFreeQuantity;
 
         return $this;
     }
