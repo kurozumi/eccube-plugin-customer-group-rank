@@ -14,6 +14,7 @@
 namespace Plugin\CustomerGroupRank42\Tests\Service\PurchaseFlow\Processor;
 
 use Eccube\Entity\Master\OrderItemType;
+use Eccube\Entity\Master\TaxDisplayType;
 use Eccube\Entity\Order;
 use Eccube\Entity\OrderItem;
 use Eccube\Entity\Shipping;
@@ -27,7 +28,7 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
 {
     use TestCaseTrait;
 
-    private GroupDeliveryFreePreprocessor $preprocessor;
+    private $preprocessor;
 
     protected function setUp(): void
     {
@@ -164,7 +165,8 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
         $ProductItem = new OrderItem();
         $ProductItem->setShipping($Shipping);
         $ProductItem->setOrder($Order);
-        $ProductItem->setPriceIncTax($priceIncTax);
+        $ProductItem->setPrice($priceIncTax);
+        $ProductItem->setTaxDisplayType($this->entityManager->find(TaxDisplayType::class, TaxDisplayType::INCLUDED));
         $ProductItem->setQuantity($quantity);
         $ProductItem->setOrderItemType($this->entityManager->find(OrderItemType::class, OrderItemType::PRODUCT));
         $Shipping->addOrderItem($ProductItem);
