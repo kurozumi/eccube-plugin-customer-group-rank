@@ -13,21 +13,19 @@
 
 namespace Plugin\CustomerGroupRank42\Tests\Service\PurchaseFlow\Processor;
 
-use Eccube\Entity\Master\OrderItemType;
-use Eccube\Entity\Master\TaxDisplayType;
+use Doctrine\Common\Collections\ArrayCollection;
+use Eccube\Entity\Customer;
 use Eccube\Entity\Order;
 use Eccube\Entity\OrderItem;
 use Eccube\Entity\Shipping;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
-use Eccube\Tests\EccubeTestCase;
-use Plugin\CustomerGroup42\Tests\TestCaseTrait;
+use PHPUnit\Framework\TestCase;
+use Plugin\CustomerGroup42\Entity\Group;
 use Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
 
-class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
+class GroupDeliveryFreePreprocessorTest extends TestCase
 {
-    use TestCaseTrait;
-
     private $preprocessor;
 
     protected function setUp(): void
@@ -39,17 +37,11 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
 
     public function test送料無料条件を満たす場合は送料が0になる(): void
     {
-        $group = $this->createGroup();
-        $group->setDeliveryFreeAmount(1000);
+        $group = $this->createMockGroup(1000, null);
+        $customer = $this->createMockCustomer([$group]);
+        $Order = $this->createMockOrder($customer, 1500);
 
-        $customer = $this->createCustomer();
-        $customer->addGroup($group);
-
-        $Order = $this->createOrderWithShipping($customer, 1500);
-
-        $this->entityManager->flush();
-
-        $context = new PurchaseContext($Order, $customer);
+        $context = $this->createMock(PurchaseContext::class);
         $this->preprocessor->process($Order, $context);
 
         foreach ($Order->getShippings() as $Shipping) {
@@ -63,17 +55,11 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
 
     public function test送料無料条件を満たさない場合は送料がそのまま(): void
     {
-        $group = $this->createGroup();
-        $group->setDeliveryFreeAmount(10000);
+        $group = $this->createMockGroup(10000, null);
+        $customer = $this->createMockCustomer([$group]);
+        $Order = $this->createMockOrder($customer, 1500);
 
-        $customer = $this->createCustomer();
-        $customer->addGroup($group);
-
-        $Order = $this->createOrderWithShipping($customer, 1500);
-
-        $this->entityManager->flush();
-
-        $context = new PurchaseContext($Order, $customer);
+        $context = $this->createMock(PurchaseContext::class);
         $this->preprocessor->process($Order, $context);
 
         foreach ($Order->getShippings() as $Shipping) {
@@ -87,17 +73,11 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
 
     public function test数量条件を満たす場合は送料が0になる(): void
     {
-        $group = $this->createGroup();
-        $group->setDeliveryFreeQuantity(3);
+        $group = $this->createMockGroup(null, 3);
+        $customer = $this->createMockCustomer([$group]);
+        $Order = $this->createMockOrder($customer, 1000, 5);
 
-        $customer = $this->createCustomer();
-        $customer->addGroup($group);
-
-        $Order = $this->createOrderWithShipping($customer, 1000, 5);
-
-        $this->entityManager->flush();
-
-        $context = new PurchaseContext($Order, $customer);
+        $context = $this->createMock(PurchaseContext::class);
         $this->preprocessor->process($Order, $context);
 
         foreach ($Order->getShippings() as $Shipping) {
@@ -111,16 +91,11 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
 
     public function testグループに送料無料条件が設定されていない場合は何もしない(): void
     {
-        $group = $this->createGroup();
+        $group = $this->createMockGroup(null, null);
+        $customer = $this->createMockCustomer([$group]);
+        $Order = $this->createMockOrder($customer, 1500);
 
-        $customer = $this->createCustomer();
-        $customer->addGroup($group);
-
-        $Order = $this->createOrderWithShipping($customer, 1500);
-
-        $this->entityManager->flush();
-
-        $context = new PurchaseContext($Order, $customer);
+        $context = $this->createMock(PurchaseContext::class);
         $this->preprocessor->process($Order, $context);
 
         foreach ($Order->getShippings() as $Shipping) {
@@ -134,13 +109,10 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
 
     public function testグループに所属していない場合は何もしない(): void
     {
-        $customer = $this->createCustomer();
+        $customer = $this->createMockCustomer([]);
+        $Order = $this->createMockOrder($customer, 1500);
 
-        $Order = $this->createOrderWithShipping($customer, 1500);
-
-        $this->entityManager->flush();
-
-        $context = new PurchaseContext($Order, $customer);
+        $context = $this->createMock(PurchaseContext::class);
         $this->preprocessor->process($Order, $context);
 
         foreach ($Order->getShippings() as $Shipping) {
@@ -152,37 +124,46 @@ class GroupDeliveryFreePreprocessorTest extends EccubeTestCase
         }
     }
 
-    private function createOrderWithShipping($Customer, int $priceIncTax, int $quantity = 1): Order
+    private function createMockGroup(?float $deliveryFreeAmount, ?float $deliveryFreeQuantity): Group
     {
-        $Order = new Order();
-        $Order->setCustomer($Customer);
+        $group = $this->createMock(Group::class);
+        $group->method('getDeliveryFreeAmount')->willReturn($deliveryFreeAmount);
+        $group->method('getDeliveryFreeQuantity')->willReturn($deliveryFreeQuantity);
 
-        $Shipping = new Shipping();
-        $Shipping->setOrder($Order);
-        $Order->addShipping($Shipping);
+        return $group;
+    }
 
-        // 商品明細
-        $ProductItem = new OrderItem();
-        $ProductItem->setShipping($Shipping);
-        $ProductItem->setOrder($Order);
-        $ProductItem->setPrice($priceIncTax);
-        $ProductItem->setTaxDisplayType($this->entityManager->find(TaxDisplayType::class, TaxDisplayType::INCLUDED));
-        $ProductItem->setQuantity($quantity);
-        $ProductItem->setOrderItemType($this->entityManager->find(OrderItemType::class, OrderItemType::PRODUCT));
-        $Shipping->addOrderItem($ProductItem);
-        $Order->addOrderItem($ProductItem);
+    private function createMockCustomer(array $groups): Customer
+    {
+        $customer = $this->createMock(Customer::class);
+        $customer->method('hasGroups')->willReturn(count($groups) > 0);
+        $customer->method('getGroups')->willReturn(new ArrayCollection($groups));
 
-        // 送料明細
+        return $customer;
+    }
+
+    private function createMockOrder($Customer, int $priceIncTax, int $quantity = 1): Order
+    {
+        // 商品明細（モック）
+        $ProductItem = $this->createMock(OrderItem::class);
+        $ProductItem->method('getPriceIncTax')->willReturn($priceIncTax);
+        $ProductItem->method('getQuantity')->willReturn($quantity);
+        $ProductItem->method('getProcessorName')->willReturn(null);
+
+        // 送料明細（実オブジェクト - setQuantityを呼ぶため）
         $DeliveryFeeItem = new OrderItem();
-        $DeliveryFeeItem->setShipping($Shipping);
-        $DeliveryFeeItem->setOrder($Order);
         $DeliveryFeeItem->setQuantity(1);
         $DeliveryFeeItem->setProcessorName(DeliveryFeePreprocessor::class);
-        $DeliveryFeeItem->setOrderItemType($this->entityManager->find(OrderItemType::class, OrderItemType::DELIVERY_FEE));
-        $Shipping->addOrderItem($DeliveryFeeItem);
-        $Order->addOrderItem($DeliveryFeeItem);
 
-        $this->entityManager->persist($Order);
+        // Shipping（モック）
+        $Shipping = $this->createMock(Shipping::class);
+        $Shipping->method('getProductOrderItems')->willReturn(new ArrayCollection([$ProductItem]));
+        $Shipping->method('getOrderItems')->willReturn(new ArrayCollection([$ProductItem, $DeliveryFeeItem]));
+
+        // Order（モック）
+        $Order = $this->createMock(Order::class);
+        $Order->method('getCustomer')->willReturn($Customer);
+        $Order->method('getShippings')->willReturn(new ArrayCollection([$Shipping]));
 
         return $Order;
     }
