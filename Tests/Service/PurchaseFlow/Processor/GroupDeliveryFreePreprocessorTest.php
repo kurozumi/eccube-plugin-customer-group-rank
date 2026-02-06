@@ -124,18 +124,75 @@ class GroupDeliveryFreePreprocessorTest extends TestCase
         }
     }
 
+    public function testSortNo昇順で最上位のグループの条件が適用される(): void
+    {
+        // sortNo=2のグループ（送料無料条件なし）
+        $group1 = $this->createMockGroupWithSortNo(null, null, 2);
+        // sortNo=1のグループ（送料無料条件あり）- こちらが優先される
+        $group2 = $this->createMockGroupWithSortNo(1000, null, 1);
+
+        $customer = $this->createMockCustomer([$group1, $group2]);
+        $Order = $this->createMockOrder($customer, 1500);
+
+        $context = $this->createMock(PurchaseContext::class);
+        $this->preprocessor->process($Order, $context);
+
+        foreach ($Order->getShippings() as $Shipping) {
+            foreach ($Shipping->getOrderItems() as $Item) {
+                if ($Item->getProcessorName() == DeliveryFeePreprocessor::class) {
+                    // sortNo=1のグループの条件（1000円以上で送料無料）が適用される
+                    self::assertEquals(0, $Item->getQuantity());
+                }
+            }
+        }
+    }
+
+    public function testSortNo昇順で最上位のグループに条件がない場合は送料がそのまま(): void
+    {
+        // sortNo=1のグループ（送料無料条件なし）- こちらが優先される
+        $group1 = $this->createMockGroupWithSortNo(null, null, 1);
+        // sortNo=2のグループ（送料無料条件あり）
+        $group2 = $this->createMockGroupWithSortNo(1000, null, 2);
+
+        $customer = $this->createMockCustomer([$group1, $group2]);
+        $Order = $this->createMockOrder($customer, 1500);
+
+        $context = $this->createMock(PurchaseContext::class);
+        $this->preprocessor->process($Order, $context);
+
+        foreach ($Order->getShippings() as $Shipping) {
+            foreach ($Shipping->getOrderItems() as $Item) {
+                if ($Item->getProcessorName() == DeliveryFeePreprocessor::class) {
+                    // sortNo=1のグループに条件がないため、送料はそのまま
+                    self::assertEquals(1, $Item->getQuantity());
+                }
+            }
+        }
+    }
+
     private function createMockGroup(?float $deliveryFreeAmount, ?float $deliveryFreeQuantity): Group
     {
-        $group = $this->createMock(Group::class);
+        return $this->createMockGroupWithSortNo($deliveryFreeAmount, $deliveryFreeQuantity, 1);
+    }
+
+    private function createMockGroupWithSortNo(?float $deliveryFreeAmount, ?float $deliveryFreeQuantity, int $sortNo): Group
+    {
+        $group = $this->getMockBuilder(Group::class)
+            ->onlyMethods(['getSortNo'])
+            ->addMethods(['getDeliveryFreeAmount', 'getDeliveryFreeQuantity'])
+            ->getMock();
         $group->method('getDeliveryFreeAmount')->willReturn($deliveryFreeAmount);
         $group->method('getDeliveryFreeQuantity')->willReturn($deliveryFreeQuantity);
+        $group->method('getSortNo')->willReturn($sortNo);
 
         return $group;
     }
 
     private function createMockCustomer(array $groups): Customer
     {
-        $customer = $this->createMock(Customer::class);
+        $customer = $this->getMockBuilder(Customer::class)
+            ->addMethods(['hasGroups', 'getGroups'])
+            ->getMock();
         $customer->method('hasGroups')->willReturn(count($groups) > 0);
         $customer->method('getGroups')->willReturn(new ArrayCollection($groups));
 

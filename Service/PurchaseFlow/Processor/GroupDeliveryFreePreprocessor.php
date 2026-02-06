@@ -36,44 +36,51 @@ class GroupDeliveryFreePreprocessor implements ItemHolderPreprocessor
             return;
         }
 
-        /** @var Group $group */
-        foreach ($Customer->getGroups() as $group) {
-            $deliveryFreeAmount = $group->getDeliveryFreeAmount();
-            $deliveryFreeQuantity = $group->getDeliveryFreeQuantity();
+        // sortNo昇順でソートして最上位のグループを取得
+        $groups = $Customer->getGroups()->toArray();
+        usort($groups, function (Group $a, Group $b) {
+            return $a->getSortNo() <=> $b->getSortNo();
+        });
 
-            if (!$deliveryFreeAmount && !$deliveryFreeQuantity) {
-                continue;
+        /** @var Group $group */
+        $group = reset($groups);
+        if (!$group) {
+            return;
+        }
+
+        $deliveryFreeAmount = $group->getDeliveryFreeAmount();
+        $deliveryFreeQuantity = $group->getDeliveryFreeQuantity();
+
+        // 送料無料条件が設定されていない場合は何もしない
+        if (!$deliveryFreeAmount && !$deliveryFreeQuantity) {
+            return;
+        }
+
+        foreach ($itemHolder->getShippings() as $Shipping) {
+            $isFree = false;
+            $total = 0;
+            $quantity = 0;
+
+            foreach ($Shipping->getProductOrderItems() as $Item) {
+                $total += $Item->getPriceIncTax() * $Item->getQuantity();
+                $quantity += $Item->getQuantity();
             }
 
-            foreach ($itemHolder->getShippings() as $Shipping) {
-                $isFree = false;
-                $total = 0;
-                $quantity = 0;
+            if ($deliveryFreeAmount && $total >= $deliveryFreeAmount) {
+                $isFree = true;
+            }
 
-                foreach ($Shipping->getProductOrderItems() as $Item) {
-                    $total += $Item->getPriceIncTax() * $Item->getQuantity();
-                    $quantity += $Item->getQuantity();
-                }
+            if ($deliveryFreeQuantity && $quantity >= $deliveryFreeQuantity) {
+                $isFree = true;
+            }
 
-                if ($deliveryFreeAmount && $total >= $deliveryFreeAmount) {
-                    $isFree = true;
-                }
-
-                if ($deliveryFreeQuantity && $quantity >= $deliveryFreeQuantity) {
-                    $isFree = true;
-                }
-
-                if ($isFree) {
-                    foreach ($Shipping->getOrderItems() as $Item) {
-                        if ($Item->getProcessorName() == DeliveryFeePreprocessor::class) {
-                            $Item->setQuantity(0);
-                        }
+            if ($isFree) {
+                foreach ($Shipping->getOrderItems() as $Item) {
+                    if ($Item->getProcessorName() == DeliveryFeePreprocessor::class) {
+                        $Item->setQuantity(0);
                     }
                 }
             }
-
-            // 最初のグループの条件で判定
-            break;
         }
     }
 }
