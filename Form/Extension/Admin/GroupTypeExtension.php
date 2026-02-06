@@ -46,6 +46,28 @@ class GroupTypeExtension extends AbstractTypeExtension
                         'min' => 1,
                     ]),
                 ],
+            ])
+            ->add('deliveryFreeAmount', PriceType::class, [
+                'label' => '送料無料条件（税込み金額）',
+                'required' => false,
+                'constraints' => [
+                    new Range([
+                        'min' => 1,
+                    ]),
+                ],
+            ])
+            ->add('deliveryFreeQuantity', NumberType::class, [
+                'label' => '送料無料条件（数量）',
+                'required' => false,
+                'constraints' => [
+                    new Regex([
+                        'pattern' => "/^\d+$/u",
+                        'message' => 'form_error.numeric_only',
+                    ]),
+                    new Range([
+                        'min' => 1,
+                    ]),
+                ],
             ]);
     }
 

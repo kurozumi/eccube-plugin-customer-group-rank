@@ -12,3 +12,7 @@ services:
     arguments:
       - '@doctrine.orm.default_entity_manager'
 
+  Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor:
+    tags:
+      - { name: eccube.item.holder.preprocessor, flow_type: shopping, priority: 650 }
+
