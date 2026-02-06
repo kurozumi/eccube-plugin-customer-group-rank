@@ -25,7 +25,7 @@ use Plugin\CustomerGroup42\Entity\Group;
  */
 class GroupDeliveryFreePreprocessor implements ItemHolderPreprocessor
 {
-    public function process(ItemHolderInterface $itemHolder, PurchaseContext $context)
+    public function process(ItemHolderInterface $itemHolder, PurchaseContext $context): void
     {
         if (!$itemHolder instanceof Order) {
             return;
