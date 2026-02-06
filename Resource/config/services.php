@@ -20,12 +20,12 @@ return function (ContainerConfigurator $containerConfigurator) {
     $services = $containerConfigurator->services();
 
     if (version_compare(Constant::VERSION, '4.3', '>=')) {
-        // EC-CUBE 4.3以降: タグベースの設定
+        // EC-CUBE 4.3以降: タグベースの設定（priorityサポート）
         $services->set(GroupDeliveryFreePreprocessor::class)
             ->tag('eccube.item.holder.preprocessor', ['flow_type' => 'shopping', 'priority' => 650]);
     } else {
-        // EC-CUBE 4.2: 従来の設定
+        // EC-CUBE 4.2: priorityは使用不可
         $services->set(GroupDeliveryFreePreprocessor::class)
-            ->tag('eccube.item.holder.preprocessor', ['flow_type' => 'shopping', 'priority' => 650]);
+            ->tag('eccube.item.holder.preprocessor', ['flow_type' => 'shopping']);
     }
 };
