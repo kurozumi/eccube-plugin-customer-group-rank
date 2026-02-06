@@ -78,7 +78,7 @@ class ServicesPhpTest extends TestCase
 
         $tagAttributes = $tags['eccube.item.holder.preprocessor'][0];
         self::assertEquals('shopping', $tagAttributes['flow_type']);
-        self::assertEquals(650, $tagAttributes['priority']);
+        self::assertEquals(750, $tagAttributes['priority']);
     }
 
     /**
@@ -86,7 +86,7 @@ class ServicesPhpTest extends TestCase
      *
      * @group ec-cube-4.3
      */
-    public function testEC43のPriorityが650である(): void
+    public function testEC43のPriorityが750である(): void
     {
         if (version_compare(Constant::VERSION, '4.3', '<')) {
             self::markTestSkipped('This test is for EC-CUBE 4.3+');
@@ -103,8 +103,9 @@ class ServicesPhpTest extends TestCase
         $priority = $tags['eccube.item.holder.preprocessor'][0]['priority'];
 
         // DeliveryFeePreprocessor(800)の後、DeliveryFeeFreeByShippingPreprocessor(700)の前
-        self::assertEquals(650, $priority);
-        self::assertGreaterThan(500, $priority, 'Priority should be greater than 500 (after TaxProcessor)');
+        // DeliveryFeePreprocessor(800)の後、DeliveryFeeFreeByShippingPreprocessor(700)の前
+        self::assertEquals(750, $priority);
+        self::assertGreaterThan(700, $priority, 'Priority should be greater than 700 (before DeliveryFeeFreeByShippingPreprocessor)');
         self::assertLessThan(800, $priority, 'Priority should be less than 800 (after DeliveryFeePreprocessor)');
     }
 

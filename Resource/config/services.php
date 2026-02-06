@@ -22,8 +22,9 @@ return function (ContainerConfigurator $containerConfigurator) {
 
     if (version_compare(Constant::VERSION, '4.3', '>=')) {
         // EC-CUBE 4.3以降: タグベースの設定（priorityサポート）
+        // DeliveryFeePreprocessor(800)の後、DeliveryFeeFreeByShippingPreprocessor(700)の前に実行
         $services->set(GroupDeliveryFreePreprocessor::class)
-            ->tag('eccube.item.holder.preprocessor', ['flow_type' => 'shopping', 'priority' => 650]);
+            ->tag('eccube.item.holder.preprocessor', ['flow_type' => 'shopping', 'priority' => 750]);
     } else {
         // EC-CUBE 4.2: ArrayCollectionで順序を指定
         $services->set(GroupDeliveryFreePreprocessor::class);
