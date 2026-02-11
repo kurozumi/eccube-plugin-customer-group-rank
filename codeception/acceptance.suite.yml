@@ -1,0 +1,31 @@
+actor: AcceptanceTester
+modules:
+    enabled:
+        - WebDriver:
+            host: '%SELENIUM_HOST%'
+            port: '%SELENIUM_PORT%'
+            url: '%BASE_URL%'
+            browser: chrome
+            window_size: 1920x1080
+            wait: 10
+            capabilities:
+                goog:chromeOptions:
+                    args: ["--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage"]
+        - Asserts
+        - \Helper\Acceptance
+
+env:
+    chrome:
+        modules:
+            config:
+                WebDriver:
+                    browser: chrome
+                    capabilities:
+                        goog:chromeOptions:
+                            args: ["--headless", "--disable-gpu", "--no-sandbox"]
+
+    firefox:
+        modules:
+            config:
+                WebDriver:
+                    browser: firefox

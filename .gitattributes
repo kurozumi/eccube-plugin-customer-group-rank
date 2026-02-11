@@ -6,3 +6,5 @@
 /phpstan.neon               export-ignore
 /phpunit.xml.dist           export-ignore
 /Tests                      export-ignore
+/codeception                export-ignore
+/codeception.yml            export-ignore

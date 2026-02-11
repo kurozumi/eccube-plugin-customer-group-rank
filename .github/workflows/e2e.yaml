@@ -1,0 +1,124 @@
+name: E2E Tests
+
+on:
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: E2E Tests (EC-CUBE ${{ matrix.eccube }}, PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        eccube: ['4.2', '4.3']
+        php: ['8.1']
+        include:
+          - eccube: '4.2'
+            php: '7.4'
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: eccube_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      chrome:
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
+
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/eccube_db
+      DATABASE_SERVER_VERSION: 5.7
+      APP_ENV: dev
+      APP_DEBUG: 1
+      ECCUBE_ADMIN_ROUTE: admin
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: password
+      SELENIUM_HOST: 127.0.0.1
+      SELENIUM_PORT: 4444
+      BASE_URL: http://127.0.0.1:8000
+
+    steps:
+      - name: Checkout EC-CUBE
+        uses: actions/checkout@v4
+        with:
+          repository: EC-CUBE/ec-cube
+          ref: ${{ matrix.eccube }}
+          path: ec-cube
+
+      - name: Checkout Plugin
+        uses: actions/checkout@v4
+        with:
+          path: ec-cube/app/Plugin/CustomerGroupRank42
+
+      - name: Checkout CustomerGroup42
+        uses: actions/checkout@v4
+        with:
+          repository: kurozumi/eccube-plugin-customer-group
+          ref: '4.2'
+          path: ec-cube/app/Plugin/CustomerGroup42
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, ctype, iconv, mysql, intl
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install EC-CUBE
+        working-directory: ec-cube
+        run: |
+          composer install --no-interaction --prefer-dist
+          bin/console eccube:install --no-interaction
+
+      - name: Enable Plugins
+        working-directory: ec-cube
+        run: |
+          bin/console eccube:plugin:enable --code=CustomerGroup42
+          bin/console eccube:plugin:enable --code=CustomerGroupRank42
+
+      - name: Start PHP built-in server
+        working-directory: ec-cube
+        run: |
+          php -S 127.0.0.1:8000 -t . &
+          sleep 5
+
+      - name: Build Codeception
+        working-directory: ec-cube/app/Plugin/CustomerGroupRank42
+        run: |
+          ../../../vendor/bin/codecept build
+
+      - name: Run E2E Tests
+        working-directory: ec-cube/app/Plugin/CustomerGroupRank42
+        run: |
+          ../../../vendor/bin/codecept run acceptance --env chrome -vvv
+
+      - name: Upload artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-${{ matrix.eccube }}-${{ matrix.php }}
+          path: ec-cube/app/Plugin/CustomerGroupRank42/codeception/_output/
