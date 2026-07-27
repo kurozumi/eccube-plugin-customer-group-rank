@@ -11,11 +11,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Security\EventListener;
+namespace Plugin\CustomerGroupRank44\Security\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Customer;
-use Plugin\CustomerGroupRank42\Service\Rank\Context;
+use Plugin\CustomerGroupRank44\Service\Rank\Context;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class LoginListener

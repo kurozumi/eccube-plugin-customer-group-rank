@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests\Resource\Config;
+namespace Plugin\CustomerGroupRank44\Tests\Resource\Config;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Eccube\Common\Constant;
@@ -22,7 +22,7 @@ use Eccube\Service\PurchaseFlow\Processor\PaymentChargePreprocessor;
 use Eccube\Service\PurchaseFlow\Processor\TaxProcessor;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
 use PHPUnit\Framework\TestCase;
-use Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
+use Plugin\CustomerGroupRank44\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;

@@ -6,12 +6,12 @@
 ## プラグイン概要
 
 EC-CUBE 4.2 / 4.3 用。購入実績に基づく会員ランクの自動登録と、会員グループごとの
-送料無料条件を提供するアドオン。`CustomerGroup42` に依存する。
+送料無料条件を提供するアドオン。`CustomerGroup44` に依存する。
 
 ## ディレクトリ構造
 
 ```
-CustomerGroupRank42/
+CustomerGroupRank44/
 ├── Bundle/                         # バンドル定義（コンパイラパスの登録）
 ├── DependencyInjection/Compiler/   # ランク判定クラスの収集
 ├── Entity/                         # Group への EntityExtension
@@ -106,7 +106,7 @@ EC-CUBE 4.3 以降はタグの priority（750）で、4.2 は `ArrayCollection` 
 
 ### 管理画面の入力欄はテンプレートスニペットで差し込む
 
-`Event.php` が `@CustomerGroup42/admin/Customer/Group/edit.twig` にスニペットを
+`Event.php` が `@CustomerGroup44/admin/Customer/Group/edit.twig` にスニペットを
 追加している。親プラグインのテンプレートのパスが変わると表示されなくなるので、
 親を更新したときは表示を確認すること。
 
@@ -114,10 +114,10 @@ EC-CUBE 4.3 以降はタグの priority（750）で、4.2 は `ArrayCollection` 
 
 ```bash
 # EC-CUBE ルートから
-vendor/bin/phpunit app/Plugin/CustomerGroupRank42/Tests
+vendor/bin/phpunit app/Plugin/CustomerGroupRank44/Tests
 
 # プラグイン単体の設定で
-vendor/bin/phpunit -c app/Plugin/CustomerGroupRank42/phpunit.xml.dist
+vendor/bin/phpunit -c app/Plugin/CustomerGroupRank44/phpunit.xml.dist
 ```
 
 `Tests/Web/` 配下は `WebTestCase` 系なので、**`APP_ENV=test` が実行プロセスの

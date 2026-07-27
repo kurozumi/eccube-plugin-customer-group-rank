@@ -11,12 +11,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests\Repository\QueryCustomizer;
+namespace Plugin\CustomerGroupRank44\Tests\Repository\QueryCustomizer;
 
 use Eccube\Tests\EccubeTestCase;
-use Plugin\CustomerGroup42\Entity\Group;
-use Plugin\CustomerGroup42\Tests\TestCaseTrait;
-use Plugin\CustomerGroupRank42\Repository\QueryCustomizer\GroupSearchCustomizer;
+use Plugin\CustomerGroup44\Entity\Group;
+use Plugin\CustomerGroup44\Tests\TestCaseTrait;
+use Plugin\CustomerGroupRank44\Repository\QueryCustomizer\GroupSearchCustomizer;
 
 class GroupSearchCustomizerTest extends EccubeTestCase
 {

@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests\Service\PurchaseFlow\Processor;
+namespace Plugin\CustomerGroupRank44\Tests\Service\PurchaseFlow\Processor;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Eccube\Entity\Customer;
@@ -22,9 +22,9 @@ use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\ItemCollection;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use PHPUnit\Framework\TestCase;
-use Plugin\CustomerGroup42\Entity\Group;
-use Plugin\CustomerGroupRank42\Tests\EntityProxyLoader;
-use Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
+use Plugin\CustomerGroup44\Entity\Group;
+use Plugin\CustomerGroupRank44\Tests\EntityProxyLoader;
+use Plugin\CustomerGroupRank44\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
 
 class GroupDeliveryFreePreprocessorTest extends TestCase
 {

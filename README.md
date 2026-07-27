@@ -51,13 +51,13 @@ Customizeディレクトリで以下の実装を行う必要があります。
 以下は本プラグインの実装です。
 
 ```php
-namespace Plugin\CustomerGroupRank42\Service\Rank;
+namespace Plugin\CustomerGroupRank44\Service\Rank;
 
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Customer;
-use Plugin\CustomerGroup42\Entity\Group;
+use Plugin\CustomerGroup44\Entity\Group;
 
 class Rank implements RankInterface
 {
@@ -109,7 +109,7 @@ class Rank implements RankInterface
 
 ```yaml
 services:
-  Plugin\CustomerGroupRank42\Service\Rank\Rank:
+  Plugin\CustomerGroupRank44\Service\Rank\Rank:
     tags:
       - { name: 'plugin.customer.group.rank', priority: 100 }
     arguments:

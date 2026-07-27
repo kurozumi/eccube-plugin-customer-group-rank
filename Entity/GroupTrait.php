@@ -11,12 +11,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Entity;
+namespace Plugin\CustomerGroupRank44\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Eccube\Attribute\EntityExtension;
 
-#[EntityExtension(\Plugin\CustomerGroup42\Entity\Group::class)]
+#[EntityExtension(\Plugin\CustomerGroup44\Entity\Group::class)]
 trait GroupTrait
 {
     /**

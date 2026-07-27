@@ -11,12 +11,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests\Service\Rank;
+namespace Plugin\CustomerGroupRank44\Tests\Service\Rank;
 
 use Eccube\Entity\Customer;
 use Eccube\Tests\EccubeTestCase;
-use Plugin\CustomerGroup42\Tests\TestCaseTrait;
-use Plugin\CustomerGroupRank42\Service\Rank\Context;
+use Plugin\CustomerGroup44\Tests\TestCaseTrait;
+use Plugin\CustomerGroupRank44\Service\Rank\Context;
 
 class RankTest extends EccubeTestCase
 {

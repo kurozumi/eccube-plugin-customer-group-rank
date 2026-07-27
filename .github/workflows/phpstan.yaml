@@ -1,9 +1,9 @@
 name: PHPStan
 on: [workflow_dispatch, pull_request]
 env:
-  PLUGIN_CODE: CustomerGroupRank42
-  PLUGIN_PACKAGE_NAME: 'ec-cube/customergrouprank42'
-  CUSTOMER_GROUP_CODE: CustomerGroup42
+  PLUGIN_CODE: CustomerGroupRank44
+  PLUGIN_PACKAGE_NAME: 'ec-cube/customergrouprank44'
+  CUSTOMER_GROUP_CODE: CustomerGroup44
 
 jobs:
   phpstan:
@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        eccube-versions: ['4.2', '4.3']
+        eccube-versions: [ '4.4' ]
         php-versions: [ '8.2' ]
         database: [ 'mysql' ]
         include:
@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: kurozumi/CustomerGroup
-          ref: '4.2'
+          ref: '4.4'
           path: 'plugin'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 

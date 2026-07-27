@@ -11,11 +11,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests\Repository;
+namespace Plugin\CustomerGroupRank44\Tests\Repository;
 
 use Eccube\Tests\EccubeTestCase;
-use Plugin\CustomerGroup42\Repository\GroupRepository;
-use Plugin\CustomerGroup42\Tests\TestCaseTrait;
+use Plugin\CustomerGroup44\Repository\GroupRepository;
+use Plugin\CustomerGroup44\Tests\TestCaseTrait;
 
 class GroupRepositoryTest extends EccubeTestCase
 {

@@ -1,9 +1,9 @@
 name: CI/CD for EC-CUBE4 Plugin
 on: [workflow_dispatch, pull_request]
 env:
-  PLUGIN_CODE: CustomerGroupRank42
-  PLUGIN_PACKAGE_NAME: 'ec-cube/customergrouprank42'
-  CUSTOMER_GROUP_CODE: CustomerGroup42
+  PLUGIN_CODE: CustomerGroupRank44
+  PLUGIN_PACKAGE_NAME: 'ec-cube/customergrouprank44'
+  CUSTOMER_GROUP_CODE: CustomerGroup44
 
 jobs:
   run-on-linux:
@@ -28,15 +28,6 @@ jobs:
             database_url: postgres://postgres:password@127.0.0.1:5432/eccube_db
             database_server_version: 14
             database_charset: utf8
-        exclude:
-          - eccube-versions: 4.2
-            php-versions: 8.2
-          - eccube-versions: 4.2
-            php-versions: 8.3
-          - eccube-versions: 4.3
-            php-versions: 7.4
-          - eccube-versions: 4.3
-            php-versions: 8.0
 
     services:
       mysql:
@@ -79,7 +70,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: kurozumi/CustomerGroup
-          ref: '4.2'
+          ref: '4.4'
           path: 'plugin'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 

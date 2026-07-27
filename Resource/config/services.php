@@ -15,7 +15,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Eccube\Common\Constant;
-use Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
+use Plugin\CustomerGroupRank44\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
 
 return function (ContainerConfigurator $containerConfigurator) {
     $services = $containerConfigurator->services();
