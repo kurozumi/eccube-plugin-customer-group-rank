@@ -53,7 +53,7 @@ class GroupRepositoryTest extends EccubeTestCase
         self::assertCount($expected, $results);
     }
 
-    public function conditionProvider(): array
+    public static function conditionProvider(): array
     {
         return [
             '購入回数・金額ともに未達' => [1, 1, 0, 0, 0],
