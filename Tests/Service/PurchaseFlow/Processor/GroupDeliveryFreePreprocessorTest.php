@@ -22,11 +22,23 @@ use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use PHPUnit\Framework\TestCase;
 use Plugin\CustomerGroup42\Entity\Group;
+use Plugin\CustomerGroupRank42\Tests\EntityProxyLoader;
 use Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
 
 class GroupDeliveryFreePreprocessorTest extends TestCase
 {
     private $preprocessor;
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        // Group はプラグインが拡張したエンティティで、そのプロキシは
+        // カーネル起動時にしか読み込まれない。このテストはカーネルを
+        // 起動しないため、単体で実行すると拡張前のクラスが読まれて
+        // モックを組めなくなる。
+        EntityProxyLoader::load();
+    }
 
     protected function setUp(): void
     {
