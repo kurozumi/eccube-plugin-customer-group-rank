@@ -19,6 +19,7 @@ use Eccube\Entity\Order;
 use Eccube\Entity\OrderItem;
 use Eccube\Entity\Shipping;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
+use Eccube\Service\PurchaseFlow\ItemCollection;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use PHPUnit\Framework\TestCase;
 use Plugin\CustomerGroup42\Entity\Group;
@@ -158,9 +159,11 @@ class GroupDeliveryFreePreprocessorTest extends TestCase
     private function createMockOrder($Customer, int $priceIncTax, int $quantity = 1): Order
     {
         // 商品明細（モック）
+        // EC-CUBE 4.4 では OrderItem::getPriceIncTax() / getQuantity() の
+        // 戻り値型が string 宣言になっているため、モックも string を返す。
         $ProductItem = $this->createMock(OrderItem::class);
-        $ProductItem->method('getPriceIncTax')->willReturn($priceIncTax);
-        $ProductItem->method('getQuantity')->willReturn($quantity);
+        $ProductItem->method('getPriceIncTax')->willReturn((string) $priceIncTax);
+        $ProductItem->method('getQuantity')->willReturn((string) $quantity);
         $ProductItem->method('getProcessorName')->willReturn(null);
 
         // 送料明細（実オブジェクト - setQuantityを呼ぶため）
@@ -169,9 +172,12 @@ class GroupDeliveryFreePreprocessorTest extends TestCase
         $DeliveryFeeItem->setProcessorName(DeliveryFeePreprocessor::class);
 
         // Shipping（モック）
+        // EC-CUBE 4.4 では戻り値型が宣言されている。
+        //   getProductOrderItems(): array
+        //   getOrderItems(): ItemCollection
         $Shipping = $this->createMock(Shipping::class);
-        $Shipping->method('getProductOrderItems')->willReturn(new ArrayCollection([$ProductItem]));
-        $Shipping->method('getOrderItems')->willReturn(new ArrayCollection([$ProductItem, $DeliveryFeeItem]));
+        $Shipping->method('getProductOrderItems')->willReturn([$ProductItem]);
+        $Shipping->method('getOrderItems')->willReturn(new ItemCollection([$ProductItem, $DeliveryFeeItem]));
 
         // Order（モック）
         $Order = $this->createMock(Order::class);
