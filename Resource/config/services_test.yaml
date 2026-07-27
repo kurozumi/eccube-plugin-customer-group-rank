@@ -1,3 +1,12 @@
 services:
-  Plugin\CustomerGroupRank42\Service\Rank\Context:
-    public: true
+    # ここでサービスを再定義すると自動設定は引き継がれない。_defaults を省くと
+    # autowire / autoconfigure が無効になり、コンストラクタ引数が注入されず、
+    # タグも付かなくなる。テスト環境でだけ機能が無効になり、本番は正常に
+    # 動くため気付けない。
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # 単体テストがコンテナから直接取得するため public にする。
+    Plugin\CustomerGroupRank42\Service\Rank\Context:
+        public: true

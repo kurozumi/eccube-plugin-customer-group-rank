@@ -101,4 +101,73 @@ class RankTest extends EccubeTestCase
         self::assertCount(1, $groups);
         self::assertEquals($group1, $groups->first());
     }
+
+    /**
+     * ランク条件を持たないグループは、ランク判定で外さない。
+     *
+     * 会員登録アドオンや管理画面で割り当てたグループは購入実績の条件を
+     * 持たないため、検索条件に一致しない。以前は所属グループを全て消して
+     * いたので、ログインのたびにそれらが失われ、二度と戻らなかった。
+     */
+    public function test手動で割り当てたグループはランク判定で外れない(): void
+    {
+        $manual = $this->createGroup('手動割当グループ');
+        $manual->setSortNo(1);
+
+        $rank = $this->createGroup('ゴールド');
+        $rank->setBuyTimes(1);
+        $rank->setBuyTotal(1000);
+        $rank->setSortNo(2);
+
+        $customer = $this->createCustomer();
+        $customer->setBuyTimes(5);
+        $customer->setBuyTotal(50000);
+        $customer->addGroup($manual);
+        $manual->addCustomer($customer);
+
+        $this->entityManager->flush();
+
+        $this->context->apply($customer);
+        $this->entityManager->flush();
+
+        $names = $this->entityManager->find(Customer::class, $customer->getId())
+            ->getGroups()
+            ->map(function ($group) {
+                return $group->getName();
+            })
+            ->toArray();
+
+        self::assertContains($manual->getName(), $names, '手動で割り当てたグループが失われています');
+        self::assertContains($rank->getName(), $names, 'ランクのグループが設定されていません');
+    }
+
+    /**
+     * 条件に一致するランクが無くても、手動で割り当てたグループは残る。
+     */
+    public function test購入実績が無くても手動で割り当てたグループは残る(): void
+    {
+        $manual = $this->createGroup('手動割当グループ');
+
+        $rank = $this->createGroup('ゴールド');
+        $rank->setBuyTimes(10);
+        $rank->setBuyTotal(100000);
+
+        $customer = $this->createCustomer();
+        $customer->addGroup($manual);
+        $manual->addCustomer($customer);
+
+        $this->entityManager->flush();
+
+        $this->context->apply($customer);
+        $this->entityManager->flush();
+
+        $names = $this->entityManager->find(Customer::class, $customer->getId())
+            ->getGroups()
+            ->map(function ($group) {
+                return $group->getName();
+            })
+            ->toArray();
+
+        self::assertSame([$manual->getName()], $names, '手動で割り当てたグループが失われています');
+    }
 }
