@@ -16,6 +16,7 @@ namespace Plugin\CustomerGroupRank44\Tests\Repository;
 use Eccube\Tests\EccubeTestCase;
 use Plugin\CustomerGroup44\Repository\GroupRepository;
 use Plugin\CustomerGroup44\Tests\TestCaseTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class GroupRepositoryTest extends EccubeTestCase
 {
@@ -30,9 +31,7 @@ class GroupRepositoryTest extends EccubeTestCase
         $this->groupRepository = static::getContainer()->get(GroupRepository::class);
     }
 
-    /**
-     * @dataProvider conditionProvider
-     */
+    #[DataProvider('conditionProvider')]
     public function testランクアップ条件にマッチした会員グループが見つかるか($groupTimes, $groupTotal, $customerTimes, $customerTotal, $expected): void
     {
         $group = $this->createGroup();
