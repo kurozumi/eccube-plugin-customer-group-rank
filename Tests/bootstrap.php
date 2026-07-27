@@ -19,3 +19,7 @@ if (file_exists($envFile)) {
         ->usePutenv()
         ->bootEnv($envFile);
 }
+
+// プラグインのエンティティ拡張は PSR-4 で解決されないため明示的に読み込む。
+// 詳細は EntityProxyLoader を参照。
+Plugin\CustomerGroupRank42\Tests\EntityProxyLoader::load();
