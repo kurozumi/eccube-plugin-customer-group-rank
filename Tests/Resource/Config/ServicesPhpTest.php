@@ -14,7 +14,6 @@
 namespace Plugin\CustomerGroupRank44\Tests\Resource\Config;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Eccube\Common\Constant;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeeFreeByShippingPreprocessor;
 use Eccube\Service\PurchaseFlow\Processor\OrderNoProcessor;
@@ -30,9 +29,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 /**
  * services.php設定ファイルのユニットテスト
  *
- * EC-CUBE 4.2と4.3で異なる設定方法をテストします。
- * - EC-CUBE 4.3+: タグベースの設定（priorityサポート）
- * - EC-CUBE 4.2: ArrayCollectionベースの設定
+ * タグベースの登録と priority を検証します。
  */
 class ServicesPhpTest extends TestCase
 {
@@ -54,15 +51,10 @@ class ServicesPhpTest extends TestCase
     }
 
     /**
-     * EC-CUBE 4.3+用テスト: タグベースの設定
-     *
-     * @group ec-cube-4.3
+     * タグで登録し、priority で順序を決めている。
      */
-    public function testEC43ではタグベースの設定が使用される(): void
+    public function testタグベースで登録されている(): void
     {
-        if (version_compare(Constant::VERSION, '4.3', '<')) {
-            self::markTestSkipped('This test is for EC-CUBE 4.3+');
-        }
 
         $container = new ContainerBuilder();
 
@@ -82,15 +74,10 @@ class ServicesPhpTest extends TestCase
     }
 
     /**
-     * EC-CUBE 4.3+用テスト: priorityが正しく設定されている
-     *
-     * @group ec-cube-4.3
+     * priority は送料計算と送料無料判定の間でなければならない。
      */
-    public function testEC43のPriorityが750である(): void
+    public function testPriorityが750である(): void
     {
-        if (version_compare(Constant::VERSION, '4.3', '<')) {
-            self::markTestSkipped('This test is for EC-CUBE 4.3+');
-        }
 
         $container = new ContainerBuilder();
         $container->register('eccube.purchase.flow.shopping', PurchaseFlow::class);
@@ -103,159 +90,8 @@ class ServicesPhpTest extends TestCase
         $priority = $tags['eccube.item.holder.preprocessor'][0]['priority'];
 
         // DeliveryFeePreprocessor(800)の後、DeliveryFeeFreeByShippingPreprocessor(700)の前
-        // DeliveryFeePreprocessor(800)の後、DeliveryFeeFreeByShippingPreprocessor(700)の前
         self::assertEquals(750, $priority);
         self::assertGreaterThan(700, $priority, 'Priority should be greater than 700 (before DeliveryFeeFreeByShippingPreprocessor)');
         self::assertLessThan(800, $priority, 'Priority should be less than 800 (after DeliveryFeePreprocessor)');
-    }
-
-    /**
-     * EC-CUBE 4.2用テスト: ArrayCollectionベースの設定
-     *
-     * @group ec-cube-4.2
-     */
-    public function testEC42ではArrayCollectionベースの設定が使用される(): void
-    {
-        if (version_compare(Constant::VERSION, '4.3', '>=')) {
-            self::markTestSkipped('This test is for EC-CUBE 4.2');
-        }
-
-        $container = $this->createContainerForEC42();
-
-        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../../../Resource/config'));
-        $loader->load('services.php');
-
-        self::assertTrue($container->hasDefinition('eccube.purchase.flow.shopping.holder_preprocessors'));
-
-        $definition = $container->getDefinition('eccube.purchase.flow.shopping.holder_preprocessors');
-        self::assertEquals(ArrayCollection::class, $definition->getClass());
-    }
-
-    /**
-     * EC-CUBE 4.2用テスト: Preprocessorの順序が正しい
-     *
-     * @group ec-cube-4.2
-     */
-    public function testEC42のPreprocessor順序が正しい(): void
-    {
-        if (version_compare(Constant::VERSION, '4.3', '>=')) {
-            self::markTestSkipped('This test is for EC-CUBE 4.2');
-        }
-
-        $container = $this->createContainerForEC42();
-
-        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../../../Resource/config'));
-        $loader->load('services.php');
-
-        $definition = $container->getDefinition('eccube.purchase.flow.shopping.holder_preprocessors');
-        $arguments = $definition->getArguments();
-        $serviceReferences = $arguments[0];
-
-        $expectedServices = [
-            TaxProcessor::class,
-            OrderNoProcessor::class,
-            DeliveryFeePreprocessor::class,
-            GroupDeliveryFreePreprocessor::class,
-            DeliveryFeeFreeByShippingPreprocessor::class,
-            PaymentChargePreprocessor::class,
-            TaxProcessor::class,
-        ];
-
-        self::assertCount(count($expectedServices), $serviceReferences);
-
-        foreach ($serviceReferences as $index => $reference) {
-            $serviceId = (string) $reference;
-            self::assertEquals($expectedServices[$index], $serviceId, "Index {$index} should be {$expectedServices[$index]}");
-        }
-    }
-
-    /**
-     * EC-CUBE 4.2用テスト: GroupDeliveryFreePreprocessorがDeliveryFeePreprocessorの後にある
-     *
-     * @group ec-cube-4.2
-     */
-    public function testEC42でGroupDeliveryFreePreprocessorがDeliveryFeePreprocessorの後(): void
-    {
-        if (version_compare(Constant::VERSION, '4.3', '>=')) {
-            self::markTestSkipped('This test is for EC-CUBE 4.2');
-        }
-
-        $container = $this->createContainerForEC42();
-
-        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../../../Resource/config'));
-        $loader->load('services.php');
-
-        $definition = $container->getDefinition('eccube.purchase.flow.shopping.holder_preprocessors');
-        $serviceReferences = $definition->getArguments()[0];
-
-        $deliveryFeeIndex = null;
-        $groupDeliveryFreeIndex = null;
-
-        foreach ($serviceReferences as $index => $reference) {
-            $serviceId = (string) $reference;
-            if ($serviceId === DeliveryFeePreprocessor::class) {
-                $deliveryFeeIndex = $index;
-            }
-            if ($serviceId === GroupDeliveryFreePreprocessor::class) {
-                $groupDeliveryFreeIndex = $index;
-            }
-        }
-
-        self::assertNotNull($deliveryFeeIndex, 'DeliveryFeePreprocessor should exist');
-        self::assertNotNull($groupDeliveryFreeIndex, 'GroupDeliveryFreePreprocessor should exist');
-        self::assertGreaterThan($deliveryFeeIndex, $groupDeliveryFreeIndex, 'GroupDeliveryFreePreprocessor should be after DeliveryFeePreprocessor');
-    }
-
-    /**
-     * EC-CUBE 4.2用テスト: GroupDeliveryFreePreprocessorがDeliveryFeeFreeByShippingPreprocessorの前にある
-     *
-     * @group ec-cube-4.2
-     */
-    public function testEC42でGroupDeliveryFreePreprocessorがDeliveryFeeFreeByShippingPreprocessorの前(): void
-    {
-        if (version_compare(Constant::VERSION, '4.3', '>=')) {
-            self::markTestSkipped('This test is for EC-CUBE 4.2');
-        }
-
-        $container = $this->createContainerForEC42();
-
-        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../../../Resource/config'));
-        $loader->load('services.php');
-
-        $definition = $container->getDefinition('eccube.purchase.flow.shopping.holder_preprocessors');
-        $serviceReferences = $definition->getArguments()[0];
-
-        $groupDeliveryFreeIndex = null;
-        $deliveryFeeFreeByShippingIndex = null;
-
-        foreach ($serviceReferences as $index => $reference) {
-            $serviceId = (string) $reference;
-            if ($serviceId === GroupDeliveryFreePreprocessor::class) {
-                $groupDeliveryFreeIndex = $index;
-            }
-            if ($serviceId === DeliveryFeeFreeByShippingPreprocessor::class) {
-                $deliveryFeeFreeByShippingIndex = $index;
-            }
-        }
-
-        self::assertNotNull($groupDeliveryFreeIndex, 'GroupDeliveryFreePreprocessor should exist');
-        self::assertNotNull($deliveryFeeFreeByShippingIndex, 'DeliveryFeeFreeByShippingPreprocessor should exist');
-        self::assertLessThan($deliveryFeeFreeByShippingIndex, $groupDeliveryFreeIndex, 'GroupDeliveryFreePreprocessor should be before DeliveryFeeFreeByShippingPreprocessor');
-    }
-
-    /**
-     * EC-CUBE 4.2用のコンテナを作成
-     */
-    private function createContainerForEC42(): ContainerBuilder
-    {
-        $container = new ContainerBuilder();
-
-        $container->register(TaxProcessor::class)->setPublic(true);
-        $container->register(OrderNoProcessor::class)->setPublic(true);
-        $container->register(DeliveryFeePreprocessor::class)->setPublic(true);
-        $container->register(DeliveryFeeFreeByShippingPreprocessor::class)->setPublic(true);
-        $container->register(PaymentChargePreprocessor::class)->setPublic(true);
-
-        return $container;
     }
 }

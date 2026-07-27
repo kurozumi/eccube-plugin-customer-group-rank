@@ -5,7 +5,7 @@
 
 ## プラグイン概要
 
-EC-CUBE 4.2 / 4.3 用。購入実績に基づく会員ランクの自動登録と、会員グループごとの
+EC-CUBE 4.4 用。購入実績に基づく会員ランクの自動登録と、会員グループごとの
 送料無料条件を提供するアドオン。`CustomerGroup44` に依存する。
 
 ## ディレクトリ構造
@@ -77,9 +77,8 @@ priority を 99 以下にすると既定の後に走る。
 明細自体は残す。`services.php` で **`DeliveryFeePreprocessor`（送料計算）の後、
 `DeliveryFeeFreeByShippingPreprocessor` の前**に実行されるよう順序を指定している。
 
-EC-CUBE 4.3 以降はタグの priority（750）で、4.2 は `ArrayCollection` で順序を明示する。
-`services.php` が `Constant::VERSION` で分岐しているのはこのため。片方だけ直すと
-どちらかのバージョンで順序が崩れる。
+順序はタグの priority（750）で決める。`DeliveryFeePreprocessor` が 800、
+`DeliveryFeeFreeByShippingPreprocessor` が 700 なので、その間に入る。
 
 ### 単体テストはエンティティ拡張のプロキシを読み込むこと
 
@@ -123,9 +122,6 @@ vendor/bin/phpunit -c app/Plugin/CustomerGroupRank44/phpunit.xml.dist
 `Tests/Web/` 配下は `WebTestCase` 系なので、**`APP_ENV=test` が実行プロセスの
 環境変数に入っている必要がある**。`phpunit.xml` の `<server>` 指定は `$_ENV` /
 `$_SERVER` の `APP_ENV` に負ける。
-
-`Tests/Resource/Config/ServicesPhpTest` には EC-CUBE 4.2 専用のテストが含まれ、
-4.3 環境ではスキップされる。スキップ4件は正常。
 
 **実行ユーザーは一貫させること。** root と www-data を混ぜると `var/cache/<env>` が
 root 所有で作られ、次に www-data で実行したときに全ページ 500 になる。起きたら

@@ -118,8 +118,7 @@ services:
 
 # 対応バージョン
 
-- EC-CUBE 4.2系
-- EC-CUBE 4.3系
+- EC-CUBE 4.4系
 
 # 注意事項
 
