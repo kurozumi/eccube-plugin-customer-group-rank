@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         eccube-versions: ['4.2', '4.3']
-        php-versions: [ '8.1' ]
+        php-versions: [ '8.2' ]
         database: [ 'mysql' ]
         include:
           - database: mysql
