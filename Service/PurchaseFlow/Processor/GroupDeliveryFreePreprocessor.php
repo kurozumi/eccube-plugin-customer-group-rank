@@ -36,8 +36,16 @@ class GroupDeliveryFreePreprocessor implements ItemHolderPreprocessor
             return;
         }
 
+        // 条件が設定された最初のグループで判定する（会員グループ価格アドオンと
+        // 同じ「並び順で最初に見つかったもの」の考え方）。所属グループの反復順は
+        // 並び順を保証しないため、ここで優先度順（sortNo 昇順）に並べ替える。
+        $groups = $Customer->getGroups()->toArray();
+        usort($groups, function (Group $a, Group $b) {
+            return $a->getSortNo() <=> $b->getSortNo();
+        });
+
         /** @var Group $group */
-        foreach ($Customer->getGroups() as $group) {
+        foreach ($groups as $group) {
             $deliveryFreeAmount = $group->getDeliveryFreeAmount();
             $deliveryFreeQuantity = $group->getDeliveryFreeQuantity();
 

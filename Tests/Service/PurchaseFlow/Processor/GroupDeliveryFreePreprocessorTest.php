@@ -124,11 +124,12 @@ class GroupDeliveryFreePreprocessorTest extends TestCase
         }
     }
 
-    private function createMockGroup(?float $deliveryFreeAmount, ?float $deliveryFreeQuantity): Group
+    private function createMockGroup(?float $deliveryFreeAmount, ?float $deliveryFreeQuantity, int $sortNo = 0): Group
     {
         $group = $this->createMock(Group::class);
         $group->method('getDeliveryFreeAmount')->willReturn($deliveryFreeAmount);
         $group->method('getDeliveryFreeQuantity')->willReturn($deliveryFreeQuantity);
+        $group->method('getSortNo')->willReturn($sortNo);
 
         return $group;
     }
@@ -166,5 +167,38 @@ class GroupDeliveryFreePreprocessorTest extends TestCase
         $Order->method('getShippings')->willReturn(new ArrayCollection([$Shipping]));
 
         return $Order;
+    }
+
+    /**
+     * 複数のグループに条件があるときは、優先度が上のグループで判定する。
+     *
+     * 所属グループの反復順は並び順を保証しないため、意図的に逆順で渡す。
+     * 並べ替えが無いと、優先度が下のグループ（厳しい条件）で判定されてしまう。
+     */
+    public function test複数グループでは優先度が上のグループの条件で判定する(): void
+    {
+        // 優先度が下（sortNo が大きい）＝厳しい条件
+        $low = $this->createMockGroup(10000, null, 2);
+        // 優先度が上（sortNo が小さい）＝ゆるい条件
+        $high = $this->createMockGroup(1000, null, 1);
+
+        // わざと優先度の低い方を先に並べる
+        $customer = $this->createMockCustomer([$low, $high]);
+        $order = $this->createMockOrder($customer, 5000);
+
+        $context = $this->createMock(PurchaseContext::class);
+        $this->preprocessor->process($order, $context);
+
+        foreach ($order->getShippings() as $Shipping) {
+            foreach ($Shipping->getOrderItems() as $Item) {
+                if ($Item->getProcessorName() == DeliveryFeePreprocessor::class) {
+                    self::assertSame(
+                        0,
+                        (int) $Item->getQuantity(),
+                        '優先度が上のグループの条件で判定されていません'
+                    );
+                }
+            }
+        }
     }
 }

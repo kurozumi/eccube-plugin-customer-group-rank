@@ -32,8 +32,20 @@ class Rank implements RankInterface
      */
     public function apply(Customer $customer): void
     {
-        // 会員グループをクリアする
-        $customer->getGroups()->clear();
+        // ランク管理対象の会員グループだけを外す。
+        //
+        // 以前は所属グループを全て消していたが、購入実績の条件を持たない
+        // グループは検索条件（buyTimes/buyTotal の比較）に決して一致しないため、
+        // 会員登録アドオンや管理画面で割り当てたグループがログインのたびに
+        // 失われ、二度と戻らなかった。会員グループは価格・閲覧可否・配送・
+        // 支払方法を左右するので、ランクが管理していないものは触らない。
+        /** @var Group $group */
+        foreach ($customer->getGroups()->toArray() as $group) {
+            if ($this->isRankGroup($group)) {
+                $customer->removeGroup($group);
+                $group->removeCustomer($customer);
+            }
+        }
 
         // 対象の会員グループが見つかったら登録
         $groups = $this->getGroups($customer);
@@ -41,7 +53,20 @@ class Rank implements RankInterface
             /** @var Group $group */
             $group = $groups->first();
             $customer->addGroup($group);
+            $group->addCustomer($customer);
         }
+    }
+
+    /**
+     * ランクが管理するグループか。
+     *
+     * 購入回数・購入金額のいずれかが設定されていればランク用とみなす。
+     * どちらも未設定のグループは購入実績では到達できないため、ランクの
+     * 管理外（手動で割り当てるもの）として扱う。
+     */
+    protected function isRankGroup(Group $group): bool
+    {
+        return null !== $group->getBuyTimes() || null !== $group->getBuyTotal();
     }
 
     /**
