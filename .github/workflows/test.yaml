@@ -38,7 +38,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=12 --health-start-period=30s
       postgres:
         image: postgres:18
         env:
@@ -47,7 +47,7 @@ jobs:
         ports:
           - 5432:5432
         # postgres イメージは healthcheck を持たないので指定する
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
       postgres13:
         image: postgres:13
         env:
@@ -55,7 +55,7 @@ jobs:
           POSTGRES_PASSWORD: password
         ports:
           - 5433:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
 
     steps:
       - name: Checkout
