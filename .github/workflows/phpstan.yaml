@@ -18,11 +18,11 @@ jobs:
         include:
           - database: mysql
             database_url: mysql://root:password@127.0.0.1:3306/eccube_db
-            database_server_version: 5.7
+            database_server_version: 8
             database_charset: utf8mb4
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.4
         env:
           MYSQL_ROOT_PASSWORD: password
         ports:
