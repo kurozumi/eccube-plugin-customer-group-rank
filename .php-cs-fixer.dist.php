@@ -36,6 +36,9 @@ $rules = [
     'no_superfluous_phpdoc_tags' => false,
     'increment_style' => false,
     'yoda_style' => false,
+    // エンティティ拡張の対象は FQCN で書く方針なので、短縮させない。
+    // 会員グループ系アドオンで揃えている。
+    'fully_qualified_strict_types' => false,
     'header_comment' => ['header' => $header],
 ];
 

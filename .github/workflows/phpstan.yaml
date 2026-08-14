@@ -1,5 +1,23 @@
 name: PHPStan
-on: [workflow_dispatch, pull_request]
+on:
+  workflow_dispatch:
+  # ドキュメントだけの変更では回さない。README とスクリーンショットの
+  # 差し替えでテストを流しても得るものがない。
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+  # 保守対象ブランチへの直接 push も検証する。
+  # PR 経由でない変更が未検証のまま入るのを防ぐため。
+  push:
+    branches:
+      - '4.4'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+
 env:
   PLUGIN_CODE: CustomerGroupRank44
   PLUGIN_PACKAGE_NAME: 'ec-cube/customergrouprank44'

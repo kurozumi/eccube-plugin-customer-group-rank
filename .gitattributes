@@ -1,5 +1,6 @@
 /.gitattributes             export-ignore
 /.github                    export-ignore
+/.githooks                  export-ignore
 /.gitignore                 export-ignore
 /dummy                      export-ignore
 /.php-cs-fixer.dist.php     export-ignore

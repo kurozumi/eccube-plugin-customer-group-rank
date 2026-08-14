@@ -127,6 +127,26 @@ vendor/bin/phpunit -c app/Plugin/CustomerGroupRank44/phpunit.xml.dist
 root 所有で作られ、次に www-data で実行したときに全ページ 500 になる。起きたら
 `chown -R www-data:www-data var/cache var/log` で直る。
 
+## push する前にローカルで検証する
+
+`.githooks/pre-push` が php-cs-fixer・phpstan・phpunit を回す。使うには一度だけ:
+
+```
+git config core.hooksPath .githooks
+```
+
+- php-cs-fixer は**今回触った PHP ファイルだけ**を見る。元から残っている
+  整形ずれで、関係のない push まで止めないため
+- phpstan は CI と同じくプラグインのディレクトリごと（Tests も対象）
+- phpunit はこのプラグインがローカルで有効なときだけ回す。開発環境に全部を
+  同時に入れているとは限らないため
+
+CI は push では**1環境しか回さない**（PHP 8.2 + MySQL）。全環境は
+`test-full.yaml` がリリース時・週1・手動で回す。GitHub Actions の実行時間を
+push のたびにマトリクス全ジョブぶん使わないため。
+
+急ぐときは `git push --no-verify`。飛ばした変更は CI が受け止める。
+
 ## 命名規則
 
 - コミットメッセージ: `type: 説明`（例: `fix: バグ修正`, `docs: ドキュメント更新`）
