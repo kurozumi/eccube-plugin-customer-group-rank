@@ -40,7 +40,7 @@ CHANGED=$(git diff --name-only --diff-filter=ACMR "$RANGE" -- '*.php' | tr '\n' 
 if [ -n "$CHANGED" ]; then
     echo "  [1/3] php-cs-fixer（今回の変更ぶん）"
     (cd "$ECCUBE_DIR" && $COMPOSE exec -T ec-cube sh -c \
-        "cd app/Plugin/$PLUGIN_CODE && PHP_CS_FIXER_IGNORE_ENV=1 ../../../vendor/bin/php-cs-fixer fix --dry-run --diff -q --path-mode=intersection -- $CHANGED") \
+        "cd app/Plugin/$PLUGIN_CODE && PHP_CS_FIXER_IGNORE_ENV=1 ../../../vendor/bin/php-cs-fixer fix --dry-run --diff -q --config=.php-cs-fixer.dist.php --path-mode=intersection -- $CHANGED") \
         || { echo "pre-push: 整形されていないファイルがあります。php-cs-fixer fix を実行してください。" >&2; exit 1; }
 else
     echo "  [1/3] php-cs-fixer（PHP の変更なし。省略）"
