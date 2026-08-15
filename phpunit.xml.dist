@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.5/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          backupGlobals="false"
          colors="true"
          bootstrap="Tests/bootstrap.php"
@@ -30,20 +30,24 @@
     </logging>
     -->
 
-    <!-- カバーレージのターゲット -->
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+    <!-- カバレッジのターゲット -->
+    <source>
+        <include>
             <directory suffix=".php">./</directory>
-            <exclude>
-                <directory suffix=".php">./Tests</directory>
-                <directory suffix=".php">./Resource</directory>
-                <file>./PluginManager.php</file>
-            </exclude>
-        </whitelist>
-    </filter>
+        </include>
+        <exclude>
+            <directory suffix=".php">./Tests</directory>
+            <directory suffix=".php">./Resource</directory>
+            <file>./PluginManager.php</file>
+        </exclude>
+    </source>
 
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-        <listener class="\DAMA\DoctrineTestBundle\PHPUnit\PHPUnitListener" />
-    </listeners>
+    <!-- PHPUnit 10 で <listeners> が廃止されたので <extensions> で登録する。
+         listener のままだと**黙って無視され**、DAMA のロールバックが効かない。
+         テストがデータベースに書き込みっぱなしになり、固定のメールアドレスを使う
+         テストは2回目から「このメールアドレスは利用できません」で落ちる。
+         CI は毎回まっさらなデータベースなので気づけない。 -->
+    <extensions>
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
+    </extensions>
 </phpunit>
