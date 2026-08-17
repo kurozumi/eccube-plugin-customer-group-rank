@@ -61,8 +61,27 @@ ENABLED=$(cd "$ECCUBE_DIR" && $COMPOSE exec -T ec-cube sh -c \
 
 if [ "$ENABLED" -ge 1 ]; then
     echo "  [3/3] phpunit"
+    # 設定ファイルは PHPUnit のバージョンで選ぶ。決め打ちにしない。
+    #
+    # 4.2/4.3 は PHPUnit 9.6 + DAMA 6.x で phpunit.xml、4.4 は PHPUnit 11 + DAMA 8.x で
+    # phpunit.11.xml。書式が相互に非互換で、合わない方を渡すと PHPUnit は警告を出して
+    # 読み飛ばすだけ。**DAMA のロールバックが黙って無効になり、テストが開発環境の DB へ
+    # 書き込み続ける。** 実際 phpunit.xml 決め打ちで 500 件以上の会員と受注が残り、
+    # プラグインの基本設定までテストの値に書き換わった。
+    #
+    # 判定はこのフックの中でやる。bin/test.sh には任せない。あちらは
+    # COMPOSE_PROJECT_NAME を前提にしていて、フックから呼ぶとコンテナを見つけられない。
+    PHPUNIT_CONFIG=$(cd "$ECCUBE_DIR" && $COMPOSE exec -T ec-cube sh -c \
+        'if vendor/bin/phpunit --version 2>/dev/null | grep -qE "PHPUnit ([1-9][0-9])\."; then
+             [ -f phpunit.11.xml ] && echo phpunit.11.xml || echo phpunit.xml
+         else
+             echo phpunit.xml
+         fi' | tr -d '\r' | tail -1)
+    PHPUNIT_CONFIG="${PHPUNIT_CONFIG:-phpunit.xml}"
+    echo "        設定: $PHPUNIT_CONFIG"
+
     (cd "$ECCUBE_DIR" && $COMPOSE exec -T -e APP_ENV=test -e APP_DEBUG=0 ec-cube sh -c \
-        "vendor/bin/phpunit -c phpunit.xml app/Plugin/$PLUGIN_CODE/Tests") \
+        "vendor/bin/phpunit -c $PHPUNIT_CONFIG app/Plugin/$PLUGIN_CODE/Tests") \
         || { echo "pre-push: テストが失敗しました。" >&2; exit 1; }
 else
     echo "  [3/3] phpunit（$PLUGIN_CODE はローカルで有効でないため省略。CI で回ります）"
