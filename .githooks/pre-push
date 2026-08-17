@@ -1,0 +1,90 @@
+#!/bin/sh
+#
+# push する前に、CI と同じ検証をローカルで回す。
+#
+# CI は push では1環境しか回さない構成にしてあるので、ここで落とせるものは
+# ここで落とす。GitHub Actions に往復するより早い。
+#
+# 使うには一度だけ:
+#   git config core.hooksPath .githooks
+#
+# 急ぐときは git push --no-verify で飛ばせる。飛ばした変更は CI が受け止める。
+set -e
+
+PLUGIN_DIR=$(cd "$(dirname "$0")/.." && pwd)
+PLUGIN_CODE=$(basename "$PLUGIN_DIR")
+# app/Plugin/<Code> から3つ上が EC-CUBE のルート
+ECCUBE_DIR=$(cd "$PLUGIN_DIR/../../.." && pwd)
+COMPOSE="docker compose -p eccube44"
+
+if ! (cd "$ECCUBE_DIR" && $COMPOSE ps --status running --format '{{.Service}}' 2>/dev/null | grep -q '^ec-cube$'); then
+    echo "pre-push: EC-CUBE のコンテナが起動していません。" >&2
+    echo "  cd $ECCUBE_DIR && $COMPOSE up -d" >&2
+    echo "  検証せずに push するなら git push --no-verify" >&2
+    exit 1
+fi
+
+echo "pre-push: $PLUGIN_CODE を検証します"
+
+# --- 1. php-cs-fixer は「今回触った PHP ファイル」だけを見る。
+# プラグインによっては整形ずれが元から残っていて、全体を対象にすると
+# 何も直していない push まで止まる。触ったものは綺麗にする、という線引き。
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null; then
+    RANGE="origin/$BRANCH...HEAD"
+else
+    RANGE="HEAD"
+fi
+CHANGED=$(git diff --name-only --diff-filter=ACMR "$RANGE" -- '*.php' | tr '\n' ' ')
+
+if [ -n "$CHANGED" ]; then
+    echo "  [1/3] php-cs-fixer（今回の変更ぶん）"
+    (cd "$ECCUBE_DIR" && $COMPOSE exec -T ec-cube sh -c \
+        "cd app/Plugin/$PLUGIN_CODE && PHP_CS_FIXER_IGNORE_ENV=1 ../../../vendor/bin/php-cs-fixer fix --dry-run --diff -q --config=.php-cs-fixer.dist.php --path-mode=intersection -- $CHANGED") \
+        || { echo "pre-push: 整形されていないファイルがあります。php-cs-fixer fix を実行してください。" >&2; exit 1; }
+else
+    echo "  [1/3] php-cs-fixer（PHP の変更なし。省略）"
+fi
+
+# --- 2. phpstan は CI と同じくプラグインのディレクトリごと。Tests も対象に入る
+echo "  [2/3] phpstan"
+(cd "$ECCUBE_DIR" && $COMPOSE exec -T ec-cube sh -c \
+    "vendor/bin/phpstan analyse app/Plugin/$PLUGIN_CODE -c app/Plugin/$PLUGIN_CODE/phpstan.neon --no-progress -q") \
+    || { echo "pre-push: phpstan で指摘があります。" >&2; exit 1; }
+
+# --- 3. テストはこのプラグインがローカルで有効なときだけ。
+# 開発環境に全プラグインを同時に入れているとは限らない。入っていないプラグインの
+# テストは通るはずがなく、そこで push を止めても直しようがない。CI が受け持つ。
+ENABLED=$(cd "$ECCUBE_DIR" && $COMPOSE exec -T ec-cube sh -c \
+    "bin/console doctrine:query:sql \"SELECT enabled FROM dtb_plugin WHERE code = '$PLUGIN_CODE'\" 2>/dev/null" \
+    | grep -cE '^\s*\|?\s*1\s*\|?\s*$' || true)
+
+if [ "$ENABLED" -ge 1 ]; then
+    echo "  [3/3] phpunit"
+    # 設定ファイルは PHPUnit のバージョンで選ぶ。決め打ちにしない。
+    #
+    # 4.2/4.3 は PHPUnit 9.6 + DAMA 6.x で phpunit.xml、4.4 は PHPUnit 11 + DAMA 8.x で
+    # phpunit.11.xml。書式が相互に非互換で、合わない方を渡すと PHPUnit は警告を出して
+    # 読み飛ばすだけ。**DAMA のロールバックが黙って無効になり、テストが開発環境の DB へ
+    # 書き込み続ける。** 実際 phpunit.xml 決め打ちで 500 件以上の会員と受注が残り、
+    # プラグインの基本設定までテストの値に書き換わった。
+    #
+    # 判定はこのフックの中でやる。bin/test.sh には任せない。あちらは
+    # COMPOSE_PROJECT_NAME を前提にしていて、フックから呼ぶとコンテナを見つけられない。
+    PHPUNIT_CONFIG=$(cd "$ECCUBE_DIR" && $COMPOSE exec -T ec-cube sh -c \
+        'if vendor/bin/phpunit --version 2>/dev/null | grep -qE "PHPUnit ([1-9][0-9])\."; then
+             [ -f phpunit.11.xml ] && echo phpunit.11.xml || echo phpunit.xml
+         else
+             echo phpunit.xml
+         fi' | tr -d '\r' | tail -1)
+    PHPUNIT_CONFIG="${PHPUNIT_CONFIG:-phpunit.xml}"
+    echo "        設定: $PHPUNIT_CONFIG"
+
+    (cd "$ECCUBE_DIR" && $COMPOSE exec -T -e APP_ENV=test -e APP_DEBUG=0 ec-cube sh -c \
+        "vendor/bin/phpunit -c $PHPUNIT_CONFIG app/Plugin/$PLUGIN_CODE/Tests") \
+        || { echo "pre-push: テストが失敗しました。" >&2; exit 1; }
+else
+    echo "  [3/3] phpunit（$PLUGIN_CODE はローカルで有効でないため省略。CI で回ります）"
+fi
+
+echo "pre-push: 問題なし"

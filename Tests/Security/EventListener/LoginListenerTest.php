@@ -11,14 +11,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests\Security\EventListener;
+namespace Plugin\CustomerGroupRank44\Tests\Security\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Customer;
 use Eccube\Entity\Member;
 use PHPUnit\Framework\TestCase;
-use Plugin\CustomerGroupRank42\Security\EventListener\LoginListener;
-use Plugin\CustomerGroupRank42\Service\Rank\Context;
+use Plugin\CustomerGroupRank44\Security\EventListener\LoginListener;
+use Plugin\CustomerGroupRank44\Service\Rank\Context;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;

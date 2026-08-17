@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Tests;
+namespace Plugin\CustomerGroupRank44\Tests;
 
 /**
  * エンティティ拡張（@EntityExtension）のプロキシを読み込む。
@@ -45,7 +45,7 @@ final class EntityProxyLoader
         // クラス重複で致命的エラーになるため何もしない。
         if (
             class_exists(\Eccube\Entity\Customer::class, false)
-            || class_exists(\Plugin\CustomerGroup42\Entity\Group::class, false)
+            || class_exists(\Plugin\CustomerGroup44\Entity\Group::class, false)
         ) {
             return;
         }

@@ -11,12 +11,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Service\Rank;
+namespace Plugin\CustomerGroupRank44\Service\Rank;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Customer;
-use Plugin\CustomerGroup42\Entity\Group;
+use Plugin\CustomerGroup44\Entity\Group;
 
 class Rank implements RankInterface
 {

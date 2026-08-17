@@ -5,13 +5,13 @@
 
 ## プラグイン概要
 
-EC-CUBE 4.2 / 4.3 用。購入実績に基づく会員ランクの自動登録と、会員グループごとの
-送料無料条件を提供するアドオン。`CustomerGroup42` に依存する。
+EC-CUBE 4.4 用。購入実績に基づく会員ランクの自動登録と、会員グループごとの
+送料無料条件を提供するアドオン。`CustomerGroup44` に依存する。
 
 ## ディレクトリ構造
 
 ```
-CustomerGroupRank42/
+CustomerGroupRank44/
 ├── Bundle/                         # バンドル定義（コンパイラパスの登録）
 ├── DependencyInjection/Compiler/   # ランク判定クラスの収集
 ├── Entity/                         # Group への EntityExtension
@@ -77,9 +77,8 @@ priority を 99 以下にすると既定の後に走る。
 明細自体は残す。`services.php` で **`DeliveryFeePreprocessor`（送料計算）の後、
 `DeliveryFeeFreeByShippingPreprocessor` の前**に実行されるよう順序を指定している。
 
-EC-CUBE 4.3 以降はタグの priority（750）で、4.2 は `ArrayCollection` で順序を明示する。
-`services.php` が `Constant::VERSION` で分岐しているのはこのため。片方だけ直すと
-どちらかのバージョンで順序が崩れる。
+順序はタグの priority（750）で決める。`DeliveryFeePreprocessor` が 800、
+`DeliveryFeeFreeByShippingPreprocessor` が 700 なので、その間に入る。
 
 ### 単体テストはエンティティ拡張のプロキシを読み込むこと
 
@@ -106,7 +105,7 @@ EC-CUBE 4.3 以降はタグの priority（750）で、4.2 は `ArrayCollection` 
 
 ### 管理画面の入力欄はテンプレートスニペットで差し込む
 
-`Event.php` が `@CustomerGroup42/admin/Customer/Group/edit.twig` にスニペットを
+`Event.php` が `@CustomerGroup44/admin/Customer/Group/edit.twig` にスニペットを
 追加している。親プラグインのテンプレートのパスが変わると表示されなくなるので、
 親を更新したときは表示を確認すること。
 
@@ -114,22 +113,39 @@ EC-CUBE 4.3 以降はタグの priority（750）で、4.2 は `ArrayCollection` 
 
 ```bash
 # EC-CUBE ルートから
-vendor/bin/phpunit app/Plugin/CustomerGroupRank42/Tests
+vendor/bin/phpunit app/Plugin/CustomerGroupRank44/Tests
 
 # プラグイン単体の設定で
-vendor/bin/phpunit -c app/Plugin/CustomerGroupRank42/phpunit.xml.dist
+vendor/bin/phpunit -c app/Plugin/CustomerGroupRank44/phpunit.xml.dist
 ```
 
 `Tests/Web/` 配下は `WebTestCase` 系なので、**`APP_ENV=test` が実行プロセスの
 環境変数に入っている必要がある**。`phpunit.xml` の `<server>` 指定は `$_ENV` /
 `$_SERVER` の `APP_ENV` に負ける。
 
-`Tests/Resource/Config/ServicesPhpTest` には EC-CUBE 4.2 専用のテストが含まれ、
-4.3 環境ではスキップされる。スキップ4件は正常。
-
 **実行ユーザーは一貫させること。** root と www-data を混ぜると `var/cache/<env>` が
 root 所有で作られ、次に www-data で実行したときに全ページ 500 になる。起きたら
 `chown -R www-data:www-data var/cache var/log` で直る。
+
+## push する前にローカルで検証する
+
+`.githooks/pre-push` が php-cs-fixer・phpstan・phpunit を回す。使うには一度だけ:
+
+```
+git config core.hooksPath .githooks
+```
+
+- php-cs-fixer は**今回触った PHP ファイルだけ**を見る。元から残っている
+  整形ずれで、関係のない push まで止めないため
+- phpstan は CI と同じくプラグインのディレクトリごと（Tests も対象）
+- phpunit はこのプラグインがローカルで有効なときだけ回す。開発環境に全部を
+  同時に入れているとは限らないため
+
+CI は push では**1環境しか回さない**（PHP 8.2 + MySQL）。全環境は
+`test-full.yaml` がリリース時・週1・手動で回す。GitHub Actions の実行時間を
+push のたびにマトリクス全ジョブぶん使わないため。
+
+急ぐときは `git push --no-verify`。飛ばした変更は CI が受け止める。
 
 ## 命名規則
 

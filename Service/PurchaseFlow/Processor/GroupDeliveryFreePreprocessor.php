@@ -11,14 +11,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor;
+namespace Plugin\CustomerGroupRank44\Service\PurchaseFlow\Processor;
 
 use Eccube\Entity\ItemHolderInterface;
 use Eccube\Entity\Order;
 use Eccube\Service\PurchaseFlow\ItemHolderPreprocessor;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
-use Plugin\CustomerGroup42\Entity\Group;
+use Plugin\CustomerGroup44\Entity\Group;
 
 /**
  * 会員グループごとの送料無料条件を適用する

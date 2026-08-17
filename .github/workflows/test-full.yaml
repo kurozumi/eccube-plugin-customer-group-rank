@@ -1,30 +1,16 @@
-name: CI/CD for EC-CUBE4 Plugin
-# 日常の検証。1環境だけ回す。
+name: CI/CD (全環境)
+# 全環境。
 #
-# 全環境は test-full.yaml がリリース時・週1・手動で回す。push のたびに
-# マトリクス全ジョブを流すと GitHub Actions の実行時間を使い切るのが早く、
-# 得るものの割に高い。
-#
-# 手元では pre-push フック（.githooks/pre-push）が phpunit・phpstan・
-# php-cs-fixer を回すので、ここに届く前にたいていのものは落ちる。
+# 回すのはリリース時と週1、あとは手動。push のたびには回さない。
+# DB や PHP の差で壊れるのは稀で、壊れるとしたらリリース前に見つかれば足りる。
+# 日常の検証は test.yaml が1環境で行う。
 on:
   workflow_dispatch:
-  # ドキュメントだけの変更では回さない。README とスクリーンショットの
-  # 差し替えでテストを流しても得るものがない。
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-  # 保守対象ブランチへの直接 push も検証する。
-  # PR 経由でない変更が未検証のまま入るのを防ぐため。
-  push:
-    branches:
-      - '4.4'
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
+  release:
+    types: [ published ]
+  schedule:
+    # 毎週月曜の朝（JST）。本体や依存プラグインの更新で壊れていないかを見る
+    - cron: '0 20 * * 0'
 
 env:
   PLUGIN_CODE: CustomerGroupRank44
@@ -39,14 +25,24 @@ jobs:
       fail-fast: false
       matrix:
         eccube-versions: [ '4.4' ]
-        php-versions: [ '8.2' ]
-        # 下限の PHP と mysql だけ。ほかの組み合わせは test-full.yaml で見る
-        database: [ 'mysql' ]
+        php-versions: [ '8.2', '8.3' ]
+        # EC-CUBE 4.4 が検証している DB に合わせる。
+        # MySQL 5.7 は 4.4 では対象外。PostgreSQL は 13 が下限なので上限とあわせて見る。
+        database: [ 'mysql', 'pgsql', 'pgsql13' ]
         include:
           - database: mysql
             database_url: mysql://root:password@127.0.0.1:3306/eccube_db
             database_server_version: 8
             database_charset: utf8mb4
+          - database: pgsql
+            database_url: postgres://postgres:password@127.0.0.1:5432/eccube_db
+            database_server_version: 18
+            database_charset: utf8
+          - database: pgsql13
+            database_url: postgres://postgres:password@127.0.0.1:5433/eccube_db
+            database_server_version: 13
+            database_charset: utf8
+
     services:
       mysql:
         image: mysql:8.4
@@ -55,11 +51,27 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=12 --health-start-period=30s
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        # postgres イメージは healthcheck を持たないので指定する
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
+      postgres13:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5433:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Archive Plugin
         run: |

@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank42;
+namespace Plugin\CustomerGroupRank44;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Plugin;
@@ -28,7 +28,7 @@ class PluginManager extends AbstractPluginManager
 
         $Plugin = $entityManager
             ->getRepository(Plugin::class)
-            ->findOneBy(['code' => 'CustomerGroup42', 'enabled' => true]);
+            ->findOneBy(['code' => 'CustomerGroup44', 'enabled' => true]);
 
         if (is_null($Plugin)) {
             log_error('会員グループ管理プラグイン for EC-CUBE4が有効化されていないので有効化できません');
