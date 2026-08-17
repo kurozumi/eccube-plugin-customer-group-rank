@@ -11,13 +11,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank44\Tests\DependencyInjection\Compiler;
+namespace Plugin\CustomerGroupRank42\Tests\DependencyInjection\Compiler;
 
 use Eccube\Entity\Customer;
 use PHPUnit\Framework\TestCase;
-use Plugin\CustomerGroupRank44\DependencyInjection\Compiler\RankPass;
-use Plugin\CustomerGroupRank44\Service\Rank\Context;
-use Plugin\CustomerGroupRank44\Service\Rank\RankInterface;
+use Plugin\CustomerGroupRank42\DependencyInjection\Compiler\RankPass;
+use Plugin\CustomerGroupRank42\Service\Rank\Context;
+use Plugin\CustomerGroupRank42\Service\Rank\RankInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class RankPassTest extends TestCase

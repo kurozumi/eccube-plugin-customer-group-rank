@@ -11,14 +11,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank44\Tests\Service\PurchaseFlow\Processor;
+namespace Plugin\CustomerGroupRank42\Tests\Service\PurchaseFlow\Processor;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeeFreeByShippingPreprocessor;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
 use Eccube\Tests\EccubeTestCase;
-use Plugin\CustomerGroupRank44\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
+use Plugin\CustomerGroupRank42\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
 
 /**
  * GroupDeliveryFreePreprocessorの統合テスト
@@ -41,7 +41,7 @@ class GroupDeliveryFreePreprocessorWebTest extends EccubeTestCase
 
         // プラグインがインストールされているか確認
         if (!static::getContainer()->has(GroupDeliveryFreePreprocessor::class)) {
-            self::markTestSkipped('CustomerGroupRank44 plugin is not installed');
+            self::markTestSkipped('CustomerGroupRank42 plugin is not installed');
         }
 
         $this->shoppingFlow = static::getContainer()->get('eccube.purchase.flow.shopping');

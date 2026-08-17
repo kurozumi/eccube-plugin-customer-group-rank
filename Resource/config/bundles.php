@@ -12,5 +12,5 @@
  */
 
 return [
-    Plugin\CustomerGroupRank44\Bundle\CustomerGroupRankBundle::class => ['all' => true],
+    Plugin\CustomerGroupRank42\Bundle\CustomerGroupRankBundle::class => ['all' => true],
 ];

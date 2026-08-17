@@ -1,35 +1,9 @@
 name: CI/CD for EC-CUBE4 Plugin
-# 日常の検証。1環境だけ回す。
-#
-# 全環境は test-full.yaml がリリース時・週1・手動で回す。push のたびに
-# マトリクス全ジョブを流すと GitHub Actions の実行時間を使い切るのが早く、
-# 得るものの割に高い。
-#
-# 手元では pre-push フック（.githooks/pre-push）が phpunit・phpstan・
-# php-cs-fixer を回すので、ここに届く前にたいていのものは落ちる。
-on:
-  workflow_dispatch:
-  # ドキュメントだけの変更では回さない。README とスクリーンショットの
-  # 差し替えでテストを流しても得るものがない。
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-  # 保守対象ブランチへの直接 push も検証する。
-  # PR 経由でない変更が未検証のまま入るのを防ぐため。
-  push:
-    branches:
-      - '4.4'
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-
+on: [workflow_dispatch, pull_request]
 env:
-  PLUGIN_CODE: CustomerGroupRank44
-  PLUGIN_PACKAGE_NAME: 'ec-cube/customergrouprank44'
-  CUSTOMER_GROUP_CODE: CustomerGroup44
+  PLUGIN_CODE: CustomerGroupRank42
+  PLUGIN_PACKAGE_NAME: 'ec-cube/customergrouprank42'
+  CUSTOMER_GROUP_CODE: CustomerGroup42
 
 jobs:
   run-on-linux:
@@ -38,23 +12,57 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        eccube-versions: [ '4.4' ]
-        php-versions: [ '8.2' ]
-        # 下限の PHP と mysql だけ。ほかの組み合わせは test-full.yaml で見る
-        database: [ 'mysql' ]
+        eccube-versions: [ '4.2', '4.3' ]
+        php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
+        database: [ 'mysql', 'mysql8', 'pgsql' ]
         include:
           - database: mysql
             database_url: mysql://root:password@127.0.0.1:3306/eccube_db
+            database_server_version: 5.7
+            database_charset: utf8mb4
+          - database: mysql8
+            database_url: mysql://root:password@127.0.0.1:3308/eccube_db
             database_server_version: 8
             database_charset: utf8mb4
+          - database: pgsql
+            database_url: postgres://postgres:password@127.0.0.1:5432/eccube_db
+            database_server_version: 14
+            database_charset: utf8
+        exclude:
+          - eccube-versions: 4.2
+            php-versions: 8.2
+          - eccube-versions: 4.2
+            php-versions: 8.3
+          - eccube-versions: 4.3
+            php-versions: 7.4
+          - eccube-versions: 4.3
+            php-versions: 8.0
+
     services:
       mysql:
-        image: mysql:8.4
+        image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=12 --health-start-period=30s
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      mysql8:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3308:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,7 +79,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: kurozumi/CustomerGroup
-          ref: '4.4'
+          ref: '4.2'
           path: 'plugin'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 

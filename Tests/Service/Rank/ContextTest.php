@@ -11,12 +11,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank44\Tests\Service\Rank;
+namespace Plugin\CustomerGroupRank42\Tests\Service\Rank;
 
 use Eccube\Entity\Customer;
 use PHPUnit\Framework\TestCase;
-use Plugin\CustomerGroupRank44\Service\Rank\Context;
-use Plugin\CustomerGroupRank44\Service\Rank\RankInterface;
+use Plugin\CustomerGroupRank42\Service\Rank\Context;
+use Plugin\CustomerGroupRank42\Service\Rank\RankInterface;
 
 class ContextTest extends TestCase
 {
