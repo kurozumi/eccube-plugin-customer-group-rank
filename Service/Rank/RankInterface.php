@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank44\Service\Rank;
+namespace Plugin\CustomerGroupRank42\Service\Rank;
 
 use Eccube\Entity\Customer;
 

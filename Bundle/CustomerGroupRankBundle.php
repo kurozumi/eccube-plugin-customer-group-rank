@@ -11,10 +11,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank44\Bundle;
+namespace Plugin\CustomerGroupRank42\Bundle;
 
-use Plugin\CustomerGroupRank44\DependencyInjection\Compiler\RankPass;
-use Plugin\CustomerGroupRank44\Service\Rank\RankInterface;
+use Plugin\CustomerGroupRank42\DependencyInjection\Compiler\RankPass;
+use Plugin\CustomerGroupRank42\Service\Rank\RankInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

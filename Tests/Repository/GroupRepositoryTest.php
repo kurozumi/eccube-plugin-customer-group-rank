@@ -11,12 +11,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank44\Tests\Repository;
+namespace Plugin\CustomerGroupRank42\Tests\Repository;
 
 use Eccube\Tests\EccubeTestCase;
-use Plugin\CustomerGroup44\Repository\GroupRepository;
-use Plugin\CustomerGroup44\Tests\TestCaseTrait;
-use PHPUnit\Framework\Attributes\DataProvider;
+use Plugin\CustomerGroup42\Repository\GroupRepository;
+use Plugin\CustomerGroup42\Tests\TestCaseTrait;
 
 class GroupRepositoryTest extends EccubeTestCase
 {
@@ -31,7 +30,9 @@ class GroupRepositoryTest extends EccubeTestCase
         $this->groupRepository = static::getContainer()->get(GroupRepository::class);
     }
 
-    #[DataProvider('conditionProvider')]
+    /**
+     * @dataProvider conditionProvider
+     */
     public function testランクアップ条件にマッチした会員グループが見つかるか($groupTimes, $groupTotal, $customerTimes, $customerTotal, $expected): void
     {
         $group = $this->createGroup();
@@ -52,7 +53,7 @@ class GroupRepositoryTest extends EccubeTestCase
         self::assertCount($expected, $results);
     }
 
-    public static function conditionProvider(): array
+    public function conditionProvider(): array
     {
         return [
             '購入回数・金額ともに未達' => [1, 1, 0, 0, 0],

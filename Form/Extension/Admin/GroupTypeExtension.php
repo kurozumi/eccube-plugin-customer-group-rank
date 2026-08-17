@@ -11,10 +11,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Plugin\CustomerGroupRank44\Form\Extension\Admin;
+namespace Plugin\CustomerGroupRank42\Form\Extension\Admin;
 
 use Eccube\Form\Type\PriceType;
-use Plugin\CustomerGroup44\Form\Type\Admin\GroupType;
+use Plugin\CustomerGroup42\Form\Type\Admin\GroupType;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
