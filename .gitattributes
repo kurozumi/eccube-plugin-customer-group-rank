@@ -1,9 +1,16 @@
+# 配布用のアーカイブに含めないもの。
+# git archive で作る tgz がそのままオーナーズストアの配布物になるため、
+# 開発用のファイルはここで落とす。
+#
+# docs は落とさない。README がそこの画像を参照しているので、除外すると
+# 配布物の README がリンク切れになる。
 /.gitattributes             export-ignore
 /.github                    export-ignore
 /.githooks                  export-ignore
 /.gitignore                 export-ignore
-/dummy                      export-ignore
 /.php-cs-fixer.dist.php     export-ignore
 /phpstan.neon               export-ignore
 /phpunit.xml.dist           export-ignore
 /Tests                      export-ignore
+/CLAUDE.md                  export-ignore
+/GEMINI.md                  export-ignore

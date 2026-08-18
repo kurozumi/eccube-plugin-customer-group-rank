@@ -113,11 +113,22 @@ priority を 99 以下にすると既定の後に走る。
 
 ```bash
 # EC-CUBE ルートから
-vendor/bin/phpunit app/Plugin/CustomerGroupRank44/Tests
+bin/test.sh app/Plugin/CustomerGroupRank44/Tests
 
-# プラグイン単体の設定で
-vendor/bin/phpunit -c app/Plugin/CustomerGroupRank44/phpunit.xml.dist
+# プラグイン単体の設定で（APP_ENV=test は自分で渡すこと）
+docker compose -p eccube44 exec -e APP_ENV=test ec-cube \
+  vendor/bin/phpunit -c app/Plugin/CustomerGroupRank44/phpunit.xml.dist
 ```
+
+**素の `vendor/bin/phpunit <パス>` で回さない。** 設定を省くとルートの `phpunit.xml` を
+拾う。あれは PHPUnit 9 以前（4.2 / 4.3）用で、4.4 の PHPUnit 11 に渡すと**警告を出して
+読み飛ばされるだけ**になる。DAMA のロールバックが黙って無効化され、テストが開発用の
+データベースを汚し続ける（実際に踏んで、1回の実行で会員が522件残った）。
+
+`bin/test.sh` はコンテナに入っている PHPUnit の実バージョンを見て `phpunit.xml` と
+`phpunit.11.xml` を選び分け、選んだあと中身まで検証する。`APP_ENV=test` の受け渡しと
+実行ユーザーの固定も引き受ける。以降に出てくる `APP_ENV` と実行ユーザーの注意は、
+自分で `vendor/bin/phpunit` を叩くときの話。
 
 `Tests/Web/` 配下は `WebTestCase` 系なので、**`APP_ENV=test` が実行プロセスの
 環境変数に入っている必要がある**。`phpunit.xml` の `<server>` 指定は `$_ENV` /
