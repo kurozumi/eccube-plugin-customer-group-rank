@@ -17,6 +17,7 @@ use Eccube\Tests\EccubeTestCase;
 use Plugin\CustomerGroupRank44\Security\EventListener\LoginListener;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Http\SecurityEvents;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * ログインしたときの走る順番。
@@ -77,29 +78,61 @@ class LoginListenerOrderTest extends EccubeTestCase
     }
 
     /**
-     * 会員グループ管理の LoginSubscriber より先に走ること。
+     * 他に誰かが割り込んでも、ランクがいちばん先であること。
      *
-     * あちらは会員が見てよい商品とカテゴリを、**会員グループから引いて**
-     * トークンに控える。ランクが後だと、その回だけ前のランクの結果を控える。
+     * **会員グループを読むものが後から足されても効くように、位置ではなく
+     * 先頭かどうかを見る。** 以前は会員グループ管理の `LoginSubscriber` との
+     * 前後を見ていたが、あちらは 2026-08-25 に消えた（誰も読まない値を
+     * トークンに控えていただけだった）。
      */
-    public function test会員グループ管理のリスナーより先に走る(): void
+    public function testランクの判定がいちばん先に走る(): void
     {
         $classes = $this->listenerClasses();
 
-        $subscriber = 'Plugin\CustomerGroup44\Security\EventSubscriber\LoginSubscriber';
-        $target = array_search($subscriber, $classes, true);
+        self::assertNotEmpty($classes, 'ログインのリスナーが1つも取れていない');
+        self::assertSame(
+            LoginListener::class,
+            $classes[0],
+            'ランクの判定が先頭でない（並び: '.implode(' → ', $classes).'）'
+        );
+    }
 
-        if (false === $target) {
-            self::markTestSkipped('会員グループ管理の LoginSubscriber が登録されていない');
+    /**
+     * priority を明示していること。
+     *
+     * **並びを見るだけでは足りない。** 他がみな既定（0）だと、priority を消しても
+     * 登録順でたまたま先頭に来るので、上のテストは緑のまま通る。実際に外して
+     * 確かめた。「保証されている」と「たまたま正しい」を区別できないと、
+     * 意味のない見張りになる。
+     *
+     * だから宣言そのものを見る。
+     */
+    public function test登録にpriorityを明示している(): void
+    {
+        $path = __DIR__.'/../../../Resource/config/services.yaml';
+        self::assertFileExists($path);
+
+        $services = Yaml::parseFile($path)['services'] ?? [];
+        $tags = $services[LoginListener::class]['tags'] ?? [];
+
+        $found = null;
+        foreach ($tags as $tag) {
+            if (($tag['name'] ?? null) === 'kernel.event_listener'
+                && ($tag['event'] ?? null) === SecurityEvents::INTERACTIVE_LOGIN) {
+                $found = $tag;
+            }
         }
 
-        $rank = array_search(LoginListener::class, $classes, true);
-        self::assertNotFalse($rank, 'ランクを当てるリスナーが登録されていない');
-
-        self::assertLessThan(
-            $target,
-            $rank,
-            'ランクの判定が会員グループ管理のリスナーより後に走る（並び: '.implode(' → ', $classes).'）'
+        self::assertNotNull($found, 'ログインのリスナーとして登録されていない');
+        self::assertArrayHasKey(
+            'priority',
+            $found,
+            'priority が書かれていない。既定（0）だと他のリスナーと並び順が保証されない'
+        );
+        self::assertGreaterThan(
+            0,
+            $found['priority'],
+            'priority が 0 以下。会員グループを読む側より先に走らせる必要がある'
         );
     }
 }
