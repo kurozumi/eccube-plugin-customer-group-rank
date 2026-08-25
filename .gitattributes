@@ -12,5 +12,3 @@
 /phpstan.neon               export-ignore
 /phpunit.xml.dist           export-ignore
 /Tests                      export-ignore
-/CLAUDE.md                  export-ignore
-/GEMINI.md                  export-ignore
