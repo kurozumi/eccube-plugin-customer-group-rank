@@ -29,8 +29,8 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
  * 取り込んで購入フローを流し直す。** ランクが後だと、そのカートは前のランクの
  * 価格で検証される。
  *
- * priority 10 はそのための値。本体のリスナーも会員グループ管理の
- * `LoginSubscriber` も既定（0）なので、それより先に走る。
+ * priority 10 はそのための値。本体のリスナーはどれも既定（0）なので、
+ * それより先に走る。
  * **下げるときは、グループを読む側が本当に後で良いかを確かめる。**
  * 登録の順番は `LoginListenerOrderTest` が見ている。
  *
