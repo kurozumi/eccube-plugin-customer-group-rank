@@ -139,15 +139,20 @@ interface RankInterface
 }
 ```
 
-`services.yaml` でタグを付けて登録します。**priority を 99 以下**にすると、既定の実装
-（priority 100）より先に評価されて置き換わります。
+**登録は要りません。** `RankInterface` を実装したクラスを置けばタグは自動で付きます。
 
-```yaml
-services:
-  Customize\Service\Rank\MyRank:
-    tags:
-      - { name: 'plugin.customer.group.rank', priority: 99 }
+**priority を 99 以下**にすると、既定の実装（priority 100）より後に走ります。
+付けたいときはクラスに書いてください。
+
+```php
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+
+#[AsTaggedItem(priority: 99)]
+class MyRank implements RankInterface
 ```
+
+なお `#[AsTaggedItem]` の第1引数は `index` で、**タグ名ではありません。**
+priority だけを名前付き引数で渡してください。
 
 既定の実装は `Plugin\CustomerGroupRank44\Service\Rank\Rank` です。付け外しの範囲を
 ランク用グループに限る作りになっているので、自分で書くときも同じ配慮をおすすめします。

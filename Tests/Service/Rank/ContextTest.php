@@ -22,21 +22,24 @@ class ContextTest extends TestCase
 {
     public function test登録された全てのRankが実行される(): void
     {
-        $context = new Context();
-
         $rank1 = $this->createMock(RankInterface::class);
         $rank1->expects(self::once())->method('apply');
 
         $rank2 = $this->createMock(RankInterface::class);
         $rank2->expects(self::once())->method('apply');
 
-        $context->addRank($rank1);
-        $context->addRank($rank2);
+        $context = new Context([$rank1, $rank2]);
 
         $customer = $this->createMock(Customer::class);
         $context->apply($customer);
     }
 
+    /**
+     * 1つも無ければ何もしない。
+     *
+     * **タグ付けが外れるとこの状態になる。** 例外は出ず、ランクが当たらない
+     * まま通ってしまうので、コンテナ越しの検証（`RankRegistrationTest`）も要る。
+     */
     public function testRank未登録の場合はエラーにならない(): void
     {
         $context = new Context();

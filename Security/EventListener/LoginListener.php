@@ -16,7 +16,9 @@ namespace Plugin\CustomerGroupRank44\Security\EventListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Customer;
 use Plugin\CustomerGroupRank44\Service\Rank\Context;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Component\Security\Http\SecurityEvents;
 
 /**
  * ログインしたら、購入実績からランクを判定して会員グループを当てはめる。
@@ -34,10 +36,10 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
  * **下げるときは、グループを読む側が本当に後で良いかを確かめる。**
  * 登録の順番は `LoginListenerOrderTest` が見ている。
  *
- * 登録は `Resource/config/services.yaml` のタグ。このクラスは
- * `EventSubscriberInterface` を実装していないので、**`getSubscribedEvents` で
- * grep しても見つからない。**
+ * 登録は下の `#[AsEventListener]`。このクラスは `EventSubscriberInterface` を
+ * 実装していないので、**`getSubscribedEvents` で grep しても見つからない。**
  */
+#[AsEventListener(event: SecurityEvents::INTERACTIVE_LOGIN, method: 'onInteractiveLogin', priority: 10)]
 class LoginListener
 {
     private Context $context;
