@@ -3,13 +3,13 @@
 ランクの当て方を足す例です。**そのままコピーして使えます。**
 
 置き場所は `app/Customize/` でも、自分のプラグインの中でも構いません。
-`RankInterface` を実装したクラスを置けば `#[AutoconfigureTag]` が自動でタグを
+`RankAssignerInterface` を実装したクラスを置けば `#[AutoconfigureTag]` が自動でタグを
 付けます。**services.yaml は要りません。**
 
 ## 決まり
 
 **priority の降順に、すべて呼ばれます。** 最初の1つで打ち切りません。
-既定の `Rank`（priority 100）が先に走り、その後に足したものが走ります。
+既定の `PurchaseHistoryRankAssigner`（priority 100）が先に走り、その後に足したものが走ります。
 
 つまり**後から走ったものが前の結果を上書きできます。** 既定を残したまま、
 特定の条件だけ差し替える書き方ができます。
@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 // 既定(100)より後に走るので、既定が当てたグループを上書きできる
 #[AsTaggedItem(priority: 99)]
-class MyRank implements RankInterface
+class MyRankAssigner implements RankAssignerInterface
 ```
 
 なお `#[AsTaggedItem]` の第1引数は `index` で、**タグ名ではありません。**
@@ -48,18 +48,18 @@ namespace Customize\CustomerGroupRank;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Customer;
 use Plugin\CustomerGroup44\Entity\Group;
-use Plugin\CustomerGroupRank44\Service\Rank\RankInterface;
+use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 // 既定(100)の後に走らせて、既定が当てたランクを打ち消す
 #[AsTaggedItem(priority: 99)]
-class ContractedRank implements RankInterface
+class ContractedRank implements RankAssignerInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
 
-    public function apply(Customer $customer): void
+    public function assign(Customer $customer): void
     {
         // 「契約等級」を控えている前提（会員のメモ欄など）
         $fixed = $customer->getNote();
@@ -90,7 +90,7 @@ class ContractedRank implements RankInterface
 まとめて消すと、会員登録アドオンや管理画面で割り当てたグループが
 **ログインのたびに失われ、二度と戻りません。**
 
-既定の `Rank` は、購入実績の条件（`buyTimes` / `buyTotal`）を持つグループだけを
+既定の `PurchaseHistoryRankAssigner` は、購入実績の条件（`buyTimes` / `buyTotal`）を持つグループだけを
 外してから当て直します。自分で書くときも同じ配慮をしてください。
 
 ### `flush()` を呼ばない
@@ -110,4 +110,4 @@ php bin/console debug:container --tag=plugin.customer.group.rank
 ```
 
 priority の降順に並びます。**出てこないときはタグが付いていません。**
-`RankInterface` を実装しているか確かめてください。
+`RankAssignerInterface` を実装しているか確かめてください。

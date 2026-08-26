@@ -18,7 +18,7 @@ use Eccube\Entity\Customer;
 use Eccube\Entity\Member;
 use PHPUnit\Framework\TestCase;
 use Plugin\CustomerGroupRank44\Security\EventListener\LoginListener;
-use Plugin\CustomerGroupRank44\Service\Rank\Context;
+use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerChain;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
@@ -34,13 +34,13 @@ class LoginListenerTest extends TestCase
 
         $event = new InteractiveLoginEvent(new Request(), $token);
 
-        $context = $this->createMock(Context::class);
-        $context->expects(self::once())->method('apply')->with($customer);
+        $chain = $this->createMock(RankAssignerChain::class);
+        $chain->expects(self::once())->method('assign')->with($customer);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::once())->method('flush');
 
-        $listener = new LoginListener($context, $entityManager);
+        $listener = new LoginListener($chain, $entityManager);
         $listener->onInteractiveLogin($event);
     }
 
@@ -53,13 +53,13 @@ class LoginListenerTest extends TestCase
 
         $event = new InteractiveLoginEvent(new Request(), $token);
 
-        $context = $this->createMock(Context::class);
-        $context->expects(self::never())->method('apply');
+        $chain = $this->createMock(RankAssignerChain::class);
+        $chain->expects(self::never())->method('assign');
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects(self::never())->method('flush');
 
-        $listener = new LoginListener($context, $entityManager);
+        $listener = new LoginListener($chain, $entityManager);
         $listener->onInteractiveLogin($event);
     }
 }

@@ -33,9 +33,9 @@ CustomerGroupRank44/
 
 | クラス | 役割 |
 |--------|------|
-| `Service\Rank\Context` | ランク判定の実行コンテキスト（タグで収集した判定クラスを順に適用） |
-| `Service\Rank\Rank` | 既定のランク判定 |
-| `Service\Rank\RankInterface` | カスタマイズ用インターフェース |
+| `Service\Rank\RankAssignerChain` | 集めた当て方を priority 降順にすべて適用する |
+| `Service\Rank\PurchaseHistoryRankAssigner` | 既定のランク判定（購入実績で当てる） |
+| `Service\Rank\RankAssignerInterface` | カスタマイズ用インターフェース |
 | `Security\EventListener\LoginListener` | ログイン時に判定を実行 |
 | `Repository\QueryCustomizer\GroupSearchCustomizer` | 購入実績による絞り込み条件を追加 |
 | `Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor` | グループ別の送料無料 |
@@ -43,19 +43,19 @@ CustomerGroupRank44/
 
 ## ランク判定の仕組み
 
-`RankInterface` の実装が `Context` に集められ、priority の大きい順に**すべて**
-`apply()` される。既定の `Rank` は priority 100。
+`RankAssignerInterface` の実装が `RankAssignerChain` に集められ、priority の大きい順に**すべて**
+`apply()` される。既定の `PurchaseHistoryRankAssigner` は priority 100。
 
 **配線はすべて属性で書く。services.yaml も Bundle も置かない。**
 
 | 何を | どこに |
 |---|---|
-| タグを付ける | `RankInterface` の `#[AutoconfigureTag]` |
-| 集める | `Context` の `#[AutowireIterator]` |
+| タグを付ける | `RankAssignerInterface` の `#[AutoconfigureTag]` |
+| 集める | `RankAssignerChain` の `#[AutowireIterator]` |
 | priority | 各実装の `#[AsTaggedItem(priority: N)]` |
 | ログインへの登録 | `LoginListener` の `#[AsEventListener]` |
 
-カスタマイズは `RankInterface` を実装するだけでよい。書き方と落とし穴は
+カスタマイズは `RankAssignerInterface` を実装するだけでよい。書き方と落とし穴は
 `docs/extension-samples.md`。README にあるとおり
 priority を 99 以下にすると既定の後に走る。
 
@@ -75,7 +75,7 @@ priority を 99 以下にすると既定の後に走る。
 
 **これが本プラグインで最も重要な注意点。**
 
-以前の `Rank::apply()` は `$customer->getGroups()->clear()` で所属グループを全消去して
+以前の `PurchaseHistoryRankAssigner::assign()` は `$customer->getGroups()->clear()` で所属グループを全消去して
 いた。購入実績の条件を持たないグループは検索条件（`buyTimes <= x OR buyTotal <= x`）に
 **決して一致しない**（NULL 比較のため）ので、会員登録アドオンや承認制アドオン、
 管理画面で割り当てたグループがログインのたびに失われ、二度と戻らなかった。
@@ -84,7 +84,7 @@ priority を 99 以下にすると既定の後に走る。
 支払方法の選択肢を左右する。影響が広いので、**ランクが管理するグループ
 （`buyTimes` か `buyTotal` が設定されているもの）だけを外す**こと。
 
-`Tests/Service/Rank/RankTest` の「手動で割り当てたグループは〜」がこの不変条件を
+`Tests/Service/Rank/PurchaseHistoryRankAssignerTest` の「手動で割り当てたグループは〜」がこの不変条件を
 守っている。
 
 ### 所属グループの反復順は並び順を保証しない
@@ -122,7 +122,7 @@ priority を 99 以下にすると既定の後に走る。
 （`Kernel::configureContainer()`）。サービスを再定義すると自動設定が引き継がれない
 ため `_defaults` で `autowire` / `autoconfigure` を明示する。
 
-`Context` は現状コンストラクタ引数もタグも持たないため実害は出ないが、増えた瞬間に
+`RankAssignerChain` は現状コンストラクタ引数もタグも持たないため実害は出ないが、増えた瞬間に
 テスト環境だけ壊れる。姉妹プラグインでは実際に機能が丸ごと無効になっていた。
 
 ### 管理画面の入力欄はテンプレートスニペットで差し込む

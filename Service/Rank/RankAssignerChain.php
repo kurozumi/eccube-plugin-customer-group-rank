@@ -22,22 +22,22 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
  * 実装を priority の降順に**すべて呼ぶ。** 集めるのは `#[AutowireIterator]` で、
  * **CompilerPass は要らない。**
  */
-class Context
+class RankAssignerChain
 {
     /**
-     * @param iterable<RankInterface> $ranks priority の降順で渡される
+     * @param iterable<RankAssignerInterface> $ranks priority の降順で渡される
      */
     public function __construct(
-        #[AutowireIterator(RankInterface::TAG)]
+        #[AutowireIterator(RankAssignerInterface::TAG)]
         private readonly iterable $ranks = [],
     ) {
     }
 
-    public function apply(Customer $customer): void
+    public function assign(Customer $customer): void
     {
-        /** @var Rank $rank */
+        /** @var PurchaseHistoryRankAssigner $rank */
         foreach ($this->ranks as $rank) {
-            $rank->apply($customer);
+            $rank->assign($customer);
         }
     }
 }

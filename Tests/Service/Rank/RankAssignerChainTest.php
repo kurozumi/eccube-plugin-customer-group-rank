@@ -15,23 +15,23 @@ namespace Plugin\CustomerGroupRank44\Tests\Service\Rank;
 
 use Eccube\Entity\Customer;
 use PHPUnit\Framework\TestCase;
-use Plugin\CustomerGroupRank44\Service\Rank\Context;
-use Plugin\CustomerGroupRank44\Service\Rank\RankInterface;
+use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerChain;
+use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerInterface;
 
-class ContextTest extends TestCase
+class RankAssignerChainTest extends TestCase
 {
     public function test登録された全てのRankが実行される(): void
     {
-        $rank1 = $this->createMock(RankInterface::class);
-        $rank1->expects(self::once())->method('apply');
+        $rank1 = $this->createMock(RankAssignerInterface::class);
+        $rank1->expects(self::once())->method('assign');
 
-        $rank2 = $this->createMock(RankInterface::class);
-        $rank2->expects(self::once())->method('apply');
+        $rank2 = $this->createMock(RankAssignerInterface::class);
+        $rank2->expects(self::once())->method('assign');
 
-        $context = new Context([$rank1, $rank2]);
+        $chain = new RankAssignerChain([$rank1, $rank2]);
 
         $customer = $this->createMock(Customer::class);
-        $context->apply($customer);
+        $chain->assign($customer);
     }
 
     /**
@@ -42,10 +42,10 @@ class ContextTest extends TestCase
      */
     public function testRank未登録の場合はエラーにならない(): void
     {
-        $context = new Context();
+        $chain = new RankAssignerChain();
         $customer = $this->createMock(Customer::class);
 
-        $context->apply($customer);
+        $chain->assign($customer);
 
         self::assertTrue(true);
     }
