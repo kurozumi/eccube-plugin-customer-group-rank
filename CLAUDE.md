@@ -55,7 +55,8 @@ CustomerGroupRank44/
 | priority | 各実装の `#[AsTaggedItem(priority: N)]` |
 | ログインへの登録 | `LoginListener` の `#[AsEventListener]` |
 
-カスタマイズは `RankInterface` を実装するだけでよい。README にあるとおり
+カスタマイズは `RankInterface` を実装するだけでよい。書き方と落とし穴は
+`docs/extension-samples.md`。README にあるとおり
 priority を 99 以下にすると既定の後に走る。
 
 **`#[AsEventListener]` には `method` が要る。** 書かないと Symfony が

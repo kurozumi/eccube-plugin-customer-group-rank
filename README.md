@@ -130,7 +130,8 @@ bin/console eccube:plugin:enable --code=CustomerGroupRank44
 条件を自分で書けます。既定は購入回数と購入金額ですが、「最終購入日から1か月過ぎたら
 ランクから外す」といった判定にもできます。
 
-`RankInterface` を実装したクラスを用意します。
+`RankInterface` を実装したクラスを用意します。**書き方は
+[拡張のサンプル](docs/extension-samples.md) を参照してください。**
 
 ```php
 interface RankInterface
