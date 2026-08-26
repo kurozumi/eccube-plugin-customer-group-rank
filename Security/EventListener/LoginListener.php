@@ -15,7 +15,7 @@ namespace Plugin\CustomerGroupRank44\Security\EventListener;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Customer;
-use Plugin\CustomerGroupRank44\Service\Rank\Context;
+use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerChain;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
@@ -42,13 +42,13 @@ use Symfony\Component\Security\Http\SecurityEvents;
 #[AsEventListener(event: SecurityEvents::INTERACTIVE_LOGIN, method: 'onInteractiveLogin', priority: 10)]
 class LoginListener
 {
-    private Context $context;
+    private RankAssignerChain $chain;
 
     private EntityManagerInterface $entityManager;
 
-    public function __construct(Context $context, EntityManagerInterface $entityManager)
+    public function __construct(RankAssignerChain $chain, EntityManagerInterface $entityManager)
     {
-        $this->context = $context;
+        $this->chain = $chain;
         $this->entityManager = $entityManager;
     }
 
@@ -59,7 +59,7 @@ class LoginListener
             return;
         }
 
-        $this->context->apply($user);
+        $this->chain->assign($user);
         $this->entityManager->flush();
     }
 }

@@ -25,11 +25,11 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
  * 実装すればタグは自動で付く（下の `#[AutoconfigureTag]`）。集めるのは
  * `Context` の `#[AutowireIterator]`。**services.yaml に書く必要は無い。**
  */
-#[AutoconfigureTag(RankInterface::TAG)]
-interface RankInterface
+#[AutoconfigureTag(RankAssignerInterface::TAG)]
+interface RankAssignerInterface
 {
     /** 実装を集めるタグ */
     public const TAG = 'plugin.customer.group.rank';
 
-    public function apply(Customer $customer): void;
+    public function assign(Customer $customer): void;
 }

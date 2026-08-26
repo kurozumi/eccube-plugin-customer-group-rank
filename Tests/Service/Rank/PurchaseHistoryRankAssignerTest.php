@@ -16,19 +16,20 @@ namespace Plugin\CustomerGroupRank44\Tests\Service\Rank;
 use Eccube\Entity\Customer;
 use Eccube\Tests\EccubeTestCase;
 use Plugin\CustomerGroup44\Tests\TestCaseTrait;
-use Plugin\CustomerGroupRank44\Service\Rank\Context;
+use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerChain;
 
-class RankTest extends EccubeTestCase
+class PurchaseHistoryRankAssignerTest extends EccubeTestCase
 {
     use TestCaseTrait;
 
-    protected $context;
+    /** @var RankAssignerChain */
+    protected $chain;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->context = static::getContainer()->get(Context::class);
+        $this->chain = static::getContainer()->get(RankAssignerChain::class);
     }
 
     public function test優先度が最上位のグループが設定される(): void
@@ -48,7 +49,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->apply($customer);
+        $this->chain->assign($customer);
 
         $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
 
@@ -68,7 +69,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->apply($customer);
+        $this->chain->assign($customer);
 
         $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
 
@@ -94,7 +95,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->apply($customer);
+        $this->chain->assign($customer);
 
         $groups = $this->entityManager->find(Customer::class, $customer->getId())->getGroups();
 
@@ -127,7 +128,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->apply($customer);
+        $this->chain->assign($customer);
         $this->entityManager->flush();
 
         $names = $this->entityManager->find(Customer::class, $customer->getId())
@@ -158,7 +159,7 @@ class RankTest extends EccubeTestCase
 
         $this->entityManager->flush();
 
-        $this->context->apply($customer);
+        $this->chain->assign($customer);
         $this->entityManager->flush();
 
         $names = $this->entityManager->find(Customer::class, $customer->getId())

@@ -130,17 +130,17 @@ bin/console eccube:plugin:enable --code=CustomerGroupRank44
 条件を自分で書けます。既定は購入回数と購入金額ですが、「最終購入日から1か月過ぎたら
 ランクから外す」といった判定にもできます。
 
-`RankInterface` を実装したクラスを用意します。**書き方は
+`RankAssignerInterface` を実装したクラスを用意します。**書き方は
 [拡張のサンプル](docs/extension-samples.md) を参照してください。**
 
 ```php
-interface RankInterface
+interface RankAssignerInterface
 {
-    public function apply(Customer $customer): void;
+    public function assign(Customer $customer): void;
 }
 ```
 
-**登録は要りません。** `RankInterface` を実装したクラスを置けばタグは自動で付きます。
+**登録は要りません。** `RankAssignerInterface` を実装したクラスを置けばタグは自動で付きます。
 
 **priority を 99 以下**にすると、既定の実装（priority 100）より後に走ります。
 付けたいときはクラスに書いてください。
@@ -149,13 +149,13 @@ interface RankInterface
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem(priority: 99)]
-class MyRank implements RankInterface
+class MyRankAssigner implements RankAssignerInterface
 ```
 
 なお `#[AsTaggedItem]` の第1引数は `index` で、**タグ名ではありません。**
 priority だけを名前付き引数で渡してください。
 
-既定の実装は `Plugin\CustomerGroupRank44\Service\Rank\Rank` です。付け外しの範囲を
+既定の実装は `PurchaseHistoryRankAssigner` です。付け外しの範囲を
 ランク用グループに限る作りになっているので、自分で書くときも同じ配慮をおすすめします。
 
 ---

@@ -8,5 +8,5 @@ services:
         autoconfigure: true
 
     # 単体テストがコンテナから直接取得するため public にする。
-    Plugin\CustomerGroupRank44\Service\Rank\Context:
+    Plugin\CustomerGroupRank44\Service\Rank\RankAssignerChain:
         public: true

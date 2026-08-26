@@ -26,7 +26,7 @@ use Plugin\CustomerGroup44\Entity\Group;
  * これより大きくする。
  */
 #[AsTaggedItem(priority: 100)]
-class Rank implements RankInterface
+class PurchaseHistoryRankAssigner implements RankAssignerInterface
 {
     protected EntityManagerInterface $entityManager;
 
@@ -38,7 +38,7 @@ class Rank implements RankInterface
     /**
      * 優先度が最上位のグループを会員に設定する
      */
-    public function apply(Customer $customer): void
+    public function assign(Customer $customer): void
     {
         // ランク管理対象の会員グループだけを外す。
         //
