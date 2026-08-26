@@ -73,7 +73,7 @@ class LoginListenerOrderTest extends EccubeTestCase
             $core,
             $rank,
             'ランクの判定が本体のカート取り込みより後に走る。'
-            .'services.yaml の priority を確かめること（並び: '.implode(' → ', $classes).'）'
+            .'#[AsEventListener] の priority を確かめること（並び: '.implode(' → ', $classes).'）'
         );
     }
 
