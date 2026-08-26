@@ -6,12 +6,15 @@
 
 | クラス | 購読するもの | 登録の仕方 | すること |
 | --- | --- | --- | --- |
-| LoginListener | `SecurityEvents::INTERACTIVE_LOGIN` | services.yaml のタグ | ログイン時にランクを判定して会員へ当てはめる |
+| LoginListener | `SecurityEvents::INTERACTIVE_LOGIN` | `#[AsEventListener]` | ログイン時にランクを判定して会員へ当てはめる |
 | Event | `@CustomerGroup44/admin/Customer/Group/edit.twig` | `EventSubscriberInterface` | 会員グループ編集にランクの入力を足す |
 
 **`LoginListener` は `getSubscribedEvents` を持たない。** インターフェースを実装せず、
-`services.yaml` の `kernel.event_listener` タグだけで登録している。
-**`getSubscribedEvents` で grep すると見つからない**ので、探すときは services.yaml も見る。
+`#[AsEventListener]` だけで登録している。**`getSubscribedEvents` で grep すると
+見つからない**ので、探すときは属性も見る。
+
+**`method` を省略できない。** 書かないと Symfony が `onSecurityInteractiveLogin` を
+探して登録に失敗する。
 
 ## ランクはいちばん先に当てる
 

@@ -18,12 +18,11 @@ EC-CUBE 4.4 用。購入実績に基づく会員ランクの自動登録と、�
 
 ```
 CustomerGroupRank44/
-├── Bundle/                         # バンドル定義（コンパイラパスの登録）
 ├── DependencyInjection/Compiler/   # ランク判定クラスの収集
 ├── Entity/                         # Group への EntityExtension
 ├── Form/Extension/Admin/           # 会員グループ編集画面の入力欄
 ├── Repository/QueryCustomizer/     # 会員グループ検索への条件追加
-├── Resource/config/                # services.yaml / services.php / bundles.php
+├── Resource/config/                # services.php（購入フローの登録）と services_test.yaml
 ├── Security/EventListener/         # ログイン時のトリガー
 ├── Service/Rank/                   # ランク判定
 ├── Service/PurchaseFlow/Processor/ # 送料無料条件
@@ -44,11 +43,27 @@ CustomerGroupRank44/
 
 ## ランク判定の仕組み
 
-`plugin.customer.group.rank` タグの付いたサービスが `RankPass` によって `Context` に
-集められ、priority の大きい順に `apply()` される。既定の `Rank` は priority 100。
+`RankInterface` の実装が `Context` に集められ、priority の大きい順に**すべて**
+`apply()` される。既定の `Rank` は priority 100。
 
-カスタマイズは `RankInterface` を実装して同じタグを付ける。README にあるとおり
+**配線はすべて属性で書く。services.yaml も Bundle も置かない。**
+
+| 何を | どこに |
+|---|---|
+| タグを付ける | `RankInterface` の `#[AutoconfigureTag]` |
+| 集める | `Context` の `#[AutowireIterator]` |
+| priority | 各実装の `#[AsTaggedItem(priority: N)]` |
+| ログインへの登録 | `LoginListener` の `#[AsEventListener]` |
+
+カスタマイズは `RankInterface` を実装するだけでよい。README にあるとおり
 priority を 99 以下にすると既定の後に走る。
+
+**`#[AsEventListener]` には `method` が要る。** 書かないと Symfony が
+`onSecurityInteractiveLogin` を探して**登録に失敗する**（`onInteractiveLogin`
+という名前なので推測が当たらない）。
+
+**タグ付けが外れても例外は出ない。** ランクが当たらないまま通るだけなので、
+`Tests/Service/Rank/RankRegistrationTest` がコンテナ越しに見ている。外すと落ちる。
 
 判定は `LoginListener` が `security.interactive_login` で起動する。**ログイン時にしか
 走らない。** 購入直後にランクを上げたい場合は別途トリガーが必要。

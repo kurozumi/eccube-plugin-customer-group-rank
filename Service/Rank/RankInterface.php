@@ -14,8 +14,22 @@
 namespace Plugin\CustomerGroupRank44\Service\Rank;
 
 use Eccube\Entity\Customer;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * ランクの当て方。
+ *
+ * `Context` が priority の降順に**すべて呼ぶ。** 途中で打ち切らないので、
+ * 後から呼ばれたものが前の結果を上書きしうる。
+ *
+ * 実装すればタグは自動で付く（下の `#[AutoconfigureTag]`）。集めるのは
+ * `Context` の `#[AutowireIterator]`。**services.yaml に書く必要は無い。**
+ */
+#[AutoconfigureTag(RankInterface::TAG)]
 interface RankInterface
 {
+    /** 実装を集めるタグ */
+    public const TAG = 'plugin.customer.group.rank';
+
     public function apply(Customer $customer): void;
 }

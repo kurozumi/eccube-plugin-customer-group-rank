@@ -15,9 +15,9 @@ namespace Plugin\CustomerGroupRank44\Tests\Security\EventListener;
 
 use Eccube\Tests\EccubeTestCase;
 use Plugin\CustomerGroupRank44\Security\EventListener\LoginListener;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Http\SecurityEvents;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * ログインしたときの走る順番。
@@ -105,33 +105,28 @@ class LoginListenerOrderTest extends EccubeTestCase
      * 確かめた。「保証されている」と「たまたま正しい」を区別できないと、
      * 意味のない見張りになる。
      *
-     * だから宣言そのものを見る。
+     * だから宣言そのものを見る。**登録は `#[AsEventListener]` なので、
+     * services.yaml ではなく属性を読む。**
      */
     public function test登録にpriorityを明示している(): void
     {
-        $path = __DIR__.'/../../../Resource/config/services.yaml';
-        self::assertFileExists($path);
+        $attributes = (new \ReflectionClass(LoginListener::class))
+            ->getAttributes(AsEventListener::class);
 
-        $services = Yaml::parseFile($path)['services'] ?? [];
-        $tags = $services[LoginListener::class]['tags'] ?? [];
+        self::assertCount(1, $attributes, 'ログインのリスナーとして登録されていない');
 
-        $found = null;
-        foreach ($tags as $tag) {
-            if (($tag['name'] ?? null) === 'kernel.event_listener'
-                && ($tag['event'] ?? null) === SecurityEvents::INTERACTIVE_LOGIN) {
-                $found = $tag;
-            }
-        }
+        /** @var AsEventListener $listener */
+        $listener = $attributes[0]->newInstance();
 
-        self::assertNotNull($found, 'ログインのリスナーとして登録されていない');
-        self::assertArrayHasKey(
-            'priority',
-            $found,
-            'priority が書かれていない。既定（0）だと他のリスナーと並び順が保証されない'
+        self::assertSame(SecurityEvents::INTERACTIVE_LOGIN, $listener->event);
+        self::assertSame(
+            'onInteractiveLogin',
+            $listener->method,
+            'method を書かないと Symfony が onSecurityInteractiveLogin を探して登録に失敗する'
         );
         self::assertGreaterThan(
             0,
-            $found['priority'],
+            $listener->priority ?? 0,
             'priority が 0 以下。会員グループを読む側より先に走らせる必要がある'
         );
     }
