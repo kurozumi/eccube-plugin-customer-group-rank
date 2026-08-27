@@ -76,6 +76,78 @@ class PurchaseHistoryRankAssignerTest extends EccubeTestCase
         self::assertCount(0, $groups);
     }
 
+    /**
+     * **購入回数と購入金額は AND。** 片方だけでは付かない。
+     *
+     * 以前は OR だったため、「3回かつ30万円」のゴールドに 2回・33万円の会員が
+     * 入っていた。金額だけで上位ランクを取れるので、卸価格を紐づけている店では
+     * 実害が出る。既存の検査は DQL に条件文字列が含まれるかしか見ておらず、
+     * AND と OR の違いを捉えていなかった。
+     */
+    public function test購入回数と購入金額の片方だけでは付かない(): void
+    {
+        $group = $this->createGroup('AND検査ゴールド');
+        $group->setBuyTimes(3);
+        $group->setBuyTotal(300000);
+        $group->setSortNo(1);
+
+        // 金額は足りているが、回数が足りない
+        $customer = $this->createCustomer();
+        $customer->setBuyTimes(2);
+        $customer->setBuyTotal(330000);
+
+        $this->entityManager->flush();
+
+        $this->chain->assign($customer);
+
+        // **件数では見ない。** 店の DB には条件の違うランクが他にもあり、
+        // 下位のランクが付くのは正しい。見たいのは「回数が足りないこの
+        // グループが付いていないこと」だけ
+        self::assertNotContains(
+            $group->getName(),
+            $this->assignedNames($customer),
+            '購入回数が足りないのにランクが付いています'
+        );
+    }
+
+    /**
+     * 片方だけで判定したい店のために、**グループ側を空にしたらもう一方だけが効く**。
+     */
+    public function test条件を片方だけ入れたグループは残ったほうだけで判定される(): void
+    {
+        $group = $this->createGroup('金額を空にしたランク');
+        $group->setBuyTimes(3);
+        $group->setBuyTotal(null);
+        $group->setSortNo(1);
+
+        $customer = $this->createCustomer();
+        $customer->setBuyTimes(5);
+        $customer->setBuyTotal(0);
+
+        $this->entityManager->flush();
+
+        $this->chain->assign($customer);
+
+        self::assertContains(
+            $group->getName(),
+            $this->assignedNames($customer),
+            '購入金額を空にしたグループが付いていません'
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    private function assignedNames(Customer $customer): array
+    {
+        return $this->entityManager->find(Customer::class, $customer->getId())
+            ->getGroups()
+            ->map(function ($group) {
+                return $group->getName();
+            })
+            ->toArray();
+    }
+
     public function test既存のグループがクリアされてから新しいグループが設定される(): void
     {
         $group1 = $this->createGroup();
