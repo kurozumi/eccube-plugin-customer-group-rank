@@ -14,9 +14,9 @@
 namespace Plugin\CustomerGroupRank44\Tests\Repository;
 
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Plugin\CustomerGroup44\Repository\GroupRepository;
 use Plugin\CustomerGroup44\Tests\TestCaseTrait;
-use PHPUnit\Framework\Attributes\DataProvider;
 
 class GroupRepositoryTest extends EccubeTestCase
 {

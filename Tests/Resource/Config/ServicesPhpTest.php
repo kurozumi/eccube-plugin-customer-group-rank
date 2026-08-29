@@ -13,12 +13,8 @@
 
 namespace Plugin\CustomerGroupRank44\Tests\Resource\Config;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\Processor\DeliveryFeeFreeByShippingPreprocessor;
-use Eccube\Service\PurchaseFlow\Processor\OrderNoProcessor;
-use Eccube\Service\PurchaseFlow\Processor\PaymentChargePreprocessor;
-use Eccube\Service\PurchaseFlow\Processor\TaxProcessor;
+use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
 use PHPUnit\Framework\TestCase;
 use Plugin\CustomerGroupRank44\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
@@ -55,7 +51,6 @@ class ServicesPhpTest extends TestCase
      */
     public function testタグベースで登録されている(): void
     {
-
         $container = new ContainerBuilder();
 
         $container->register('eccube.purchase.flow.shopping', PurchaseFlow::class);
@@ -78,7 +73,6 @@ class ServicesPhpTest extends TestCase
      */
     public function testPriorityが750である(): void
     {
-
         $container = new ContainerBuilder();
         $container->register('eccube.purchase.flow.shopping', PurchaseFlow::class);
 

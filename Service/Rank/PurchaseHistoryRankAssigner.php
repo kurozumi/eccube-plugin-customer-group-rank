@@ -15,9 +15,9 @@ namespace Plugin\CustomerGroupRank44\Service\Rank;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Eccube\Entity\Customer;
 use Plugin\CustomerGroup44\Entity\Group;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
  * 購入実績から会員グループを当てる、既定の当て方。
