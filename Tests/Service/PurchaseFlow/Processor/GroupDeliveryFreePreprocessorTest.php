@@ -18,13 +18,13 @@ use Eccube\Entity\Customer;
 use Eccube\Entity\Order;
 use Eccube\Entity\OrderItem;
 use Eccube\Entity\Shipping;
-use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\ItemCollection;
+use Eccube\Service\PurchaseFlow\Processor\DeliveryFeePreprocessor;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use PHPUnit\Framework\TestCase;
 use Plugin\CustomerGroup44\Entity\Group;
-use Plugin\CustomerGroupRank44\Tests\EntityProxyLoader;
 use Plugin\CustomerGroupRank44\Service\PurchaseFlow\Processor\GroupDeliveryFreePreprocessor;
+use Plugin\CustomerGroupRank44\Tests\EntityProxyLoader;
 
 class GroupDeliveryFreePreprocessorTest extends TestCase
 {

@@ -14,8 +14,8 @@
 namespace Plugin\CustomerGroupRank44\Tests\Service\Rank;
 
 use Eccube\Tests\EccubeTestCase;
-use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerChain;
 use Plugin\CustomerGroupRank44\Service\Rank\PurchaseHistoryRankAssigner;
+use Plugin\CustomerGroupRank44\Service\Rank\RankAssignerChain;
 
 /**
  * 既定の当て方がコンテナ越しに集まっていること。
