@@ -16,10 +16,13 @@ namespace Plugin\CustomerGroupRank42\Tests\Service\Rank;
 use Eccube\Entity\Customer;
 use Eccube\Tests\EccubeTestCase;
 use Plugin\CustomerGroup42\Tests\TestCaseTrait;
+use Plugin\CustomerGroupRank42\Entity\Config;
 use Plugin\CustomerGroupRank42\Service\Rank\Context;
+use Plugin\CustomerGroupRank42\Tests\RankConditionTrait;
 
 class RankTest extends EccubeTestCase
 {
+    use RankConditionTrait;
     use TestCaseTrait;
 
     protected $context;
@@ -169,5 +172,60 @@ class RankTest extends EccubeTestCase
             ->toArray();
 
         self::assertSame([$manual->getName()], $names, '手動で割り当てたグループが失われています');
+    }
+
+    /**
+     * 「3回かつ3万円」のランクに、金額だけ足りている会員を当てたときの結果。
+     *
+     * @return string[] 会員が持つグループの名前
+     */
+    private function applyToAmountOnlyCustomer(): array
+    {
+        $rank = $this->createGroup('ゴールド（AND/OR 判定）');
+        $rank->setBuyTimes(3);
+        $rank->setBuyTotal(30000);
+
+        $customer = $this->createCustomer();
+        $customer->setBuyTimes(2);
+        $customer->setBuyTotal(32968);
+
+        $this->entityManager->flush();
+
+        $this->context->apply($customer);
+        $this->entityManager->flush();
+
+        return $this->entityManager->find(Customer::class, $customer->getId())
+            ->getGroups()
+            ->map(function ($group) {
+                return $group->getName();
+            })
+            ->toArray();
+    }
+
+    public function testANDでは金額だけ足りている会員にランクを付けない(): void
+    {
+        $this->useRankCondition(Config::CONDITION_AND);
+
+        self::assertNotContains('ゴールド（AND/OR 判定）', $this->applyToAmountOnlyCustomer());
+    }
+
+    /**
+     * 既存の店（OR）は以前の版と同じく、金額だけでランクが付く。
+     */
+    public function testORでは金額だけ足りている会員にもランクを付ける(): void
+    {
+        $this->useRankCondition(Config::CONDITION_OR);
+
+        self::assertContains('ゴールド（AND/OR 判定）', $this->applyToAmountOnlyCustomer());
+    }
+
+    /**
+     * 設定の行が無い店（以前の版から git pull で上げた店）も OR のまま。
+     */
+    public function test設定の行が無ければ以前の版と同じくORで付ける(): void
+    {
+        $this->useRankCondition(null);
+
+        self::assertContains('ゴールド（AND/OR 判定）', $this->applyToAmountOnlyCustomer());
     }
 }

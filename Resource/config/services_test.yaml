@@ -10,3 +10,7 @@ services:
     # 単体テストがコンテナから直接取得するため public にする。
     Plugin\CustomerGroupRank42\Service\Rank\Context:
         public: true
+
+    # 設定（AND/OR）が @required のセッタで届いているかをテストで見るため public にする。
+    Plugin\CustomerGroupRank42\Repository\QueryCustomizer\GroupSearchCustomizer:
+        public: true
