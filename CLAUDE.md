@@ -14,7 +14,8 @@ EC-CUBE 4.2 / 4.3 用。購入実績に基づく会員ランクの自動登録�
 CustomerGroupRank42/
 ├── Bundle/                         # バンドル定義（コンパイラパスの登録）
 ├── DependencyInjection/Compiler/   # ランク判定クラスの収集
-├── Entity/                         # Group への EntityExtension
+├── Controller/Admin/               # 会員ランク設定（AND/OR）
+├── Entity/                         # Group への EntityExtension、設定（Config）
 ├── Form/Extension/Admin/           # 会員グループ編集画面の入力欄
 ├── Repository/QueryCustomizer/     # 会員グループ検索への条件追加
 ├── Resource/config/                # services.yaml / services.php / bundles.php
@@ -48,6 +49,28 @@ priority を 99 以下にすると既定の後に走る。
 走らない。** 購入直後にランクを上げたい場合は別途トリガーが必要。
 
 ## 実装上の注意
+
+### ランクの条件（AND / OR）の既定は入れ方で分かれる
+
+`Entity\Config`（`plg_customer_group_rank_config`）の `rank_condition`。
+
+- **行が無ければ OR**（`ConfigRepository::getRankCondition()`）。`git pull` で上げた店は
+  install() も update() も走らず行が無いので、以前の版と同じ OR になる。
+  テーブル自体が無い（schema-update 前）ときも OR。PostgreSQL は失敗した文で
+  トランザクションごと使えなくなるので、例外を捕まえずに先に `tablesExist` を見る。
+- `PluginManager::install()` が AND の行、`update()` が（行が無ければ）OR の行を入れる。
+  install() の時点ではプロキシが読み込まれていないので SQL で入れる。
+- 列の既定値も `or`。
+- `GroupSearchCustomizer` はコンストラクタを変えず `@required` のセッタで設定を受け取る。
+  セッタが呼ばれていない（店が `new` している）ときは OR。OR の DQL は以前の版と一字一句同じ。
+- **テストは必ず条件を固定する**（`Tests\RankConditionTrait::useRankCondition()`）。
+  CI は install するので AND、スタック（update 相当）は OR と、環境で既定が違う。
+
+### ログインのリスナーは priority 10
+
+本体の `SecurityListener` が同じイベントでカートを取り込み購入フローを流し直すので、
+ランクを先に当てる。services.yaml のタグに書いてあり、`LoginListenerOrderTest` が
+並びと宣言の両方を見る。
 
 ### ランクが管理していないグループを消さないこと
 
