@@ -9,59 +9,123 @@ jobs:
   run-on-linux:
     name: Run on Linux
     runs-on: ubuntu-22.04
+    # EC-CUBE 本体のシステム要件（https://doc4.ec-cube.net/quickstart/requirement）に合わせる。
+    # 4.2: PHP 7.4 〜 8.1 / MySQL 5.7・8.0 / PostgreSQL 10 〜 14
+    # 4.3: PHP 8.1 〜 8.3 / MySQL 8.0 〜 8.4 / PostgreSQL 12 〜 16
+    # PHP は範囲の全部、DB は下限と上限を見る。
     strategy:
       fail-fast: false
       matrix:
         eccube-versions: [ '4.2', '4.3' ]
         php-versions: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
-        database: [ 'mysql', 'mysql8', 'pgsql' ]
+        database: [ 'mysql57', 'mysql80', 'mysql84', 'pgsql10', 'pgsql12', 'pgsql14', 'pgsql16' ]
         include:
-          - database: mysql
+          - database: mysql57
             database_url: mysql://root:password@127.0.0.1:3306/eccube_db
             database_server_version: 5.7
             database_charset: utf8mb4
-          - database: mysql8
+          - database: mysql80
             database_url: mysql://root:password@127.0.0.1:3308/eccube_db
             database_server_version: 8
             database_charset: utf8mb4
-          - database: pgsql
+          - database: mysql84
+            database_url: mysql://root:password@127.0.0.1:3309/eccube_db
+            database_server_version: 8.4
+            database_charset: utf8mb4
+          - database: pgsql10
+            database_url: postgres://postgres:password@127.0.0.1:5430/eccube_db
+            database_server_version: 10
+            database_charset: utf8
+          - database: pgsql12
             database_url: postgres://postgres:password@127.0.0.1:5432/eccube_db
+            database_server_version: 12
+            database_charset: utf8
+          - database: pgsql14
+            database_url: postgres://postgres:password@127.0.0.1:5434/eccube_db
             database_server_version: 14
             database_charset: utf8
+          - database: pgsql16
+            database_url: postgres://postgres:password@127.0.0.1:5436/eccube_db
+            database_server_version: 16
+            database_charset: utf8
         exclude:
-          - eccube-versions: 4.2
-            php-versions: 8.2
-          - eccube-versions: 4.2
-            php-versions: 8.3
-          - eccube-versions: 4.3
-            php-versions: 7.4
-          - eccube-versions: 4.3
-            php-versions: 8.0
-
+          # EC-CUBE 4.2: PHP 7.4 〜 8.1、MySQL 5.7 / 8.0、PostgreSQL 10 〜 14
+          - eccube-versions: '4.2'
+            php-versions: '8.2'
+          - eccube-versions: '4.2'
+            php-versions: '8.3'
+          - eccube-versions: '4.2'
+            database: mysql84
+          - eccube-versions: '4.2'
+            database: pgsql12
+          - eccube-versions: '4.2'
+            database: pgsql16
+          # EC-CUBE 4.3: PHP 8.1 〜 8.3、MySQL 8.0 〜 8.4、PostgreSQL 12 〜 16
+          - eccube-versions: '4.3'
+            php-versions: '7.4'
+          - eccube-versions: '4.3'
+            php-versions: '8.0'
+          - eccube-versions: '4.3'
+            database: mysql57
+          - eccube-versions: '4.3'
+            database: pgsql10
+          - eccube-versions: '4.3'
+            database: pgsql14
     services:
-      mysql:
+      mysql57:
         image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      mysql8:
-        image: mysql:8
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=12 --health-start-period=30s
+      mysql80:
+        image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: password
         ports:
           - 3308:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      postgres:
-        image: postgres:11
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=12 --health-start-period=30s
+      mysql84:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3309:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=12 --health-start-period=30s
+      # postgres イメージは healthcheck を持たないので指定する
+      postgres10:
+        image: postgres:10
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5430:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
+      postgres12:
+        image: postgres:12
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
         ports:
           - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
+      postgres14:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5434:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
+      postgres16:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5436:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 15s
 
     steps:
       - name: Checkout
