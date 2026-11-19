@@ -120,6 +120,8 @@ services:
 
 - EC-CUBE 4.2系
 - EC-CUBE 4.3系
+- PHP 7.4 〜 8.1（EC-CUBE 4.2）/ 8.1 〜 8.3（EC-CUBE 4.3）
+- MySQL 5.7 / 8.0、PostgreSQL 10 〜 14（EC-CUBE 4.2）/ MySQL 8.0 〜 8.4、PostgreSQL 12 〜 16（EC-CUBE 4.3）
 
 # 注意事項
 
