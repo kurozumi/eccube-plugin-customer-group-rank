@@ -28,7 +28,9 @@
 
 - EC-CUBE **4.4** 系
 - 会員グループ管理プラグイン (`ec-cube/customergroup44`) ^4.4 が有効化されていること
-- PHP 8.2 / 8.3
+- PHP 8.2 〜 8.5
+- MySQL 8.4
+- PostgreSQL 13 〜 18
 
 ---
 
