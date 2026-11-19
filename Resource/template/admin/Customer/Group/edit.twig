@@ -2,6 +2,7 @@
     $(function () {
         $('.card-body').append($('#customer_group_rank_buy_times'));
         $('.card-body').append($('#customer_group_rank_buy_total'));
+        $('.card-body').append($('#customer_group_rank_condition'));
         $('.card-body').append($('#customer_group_rank_delivery_free_amount'));
         $('.card-body').append($('#customer_group_rank_delivery_free_quantity'));
     });
@@ -37,6 +38,18 @@
         </div>
     </div>
 </div>
+
+{% if customer_group_rank_condition is defined %}
+<div class="row mb-2" id="customer_group_rank_condition">
+    <div class="col-3"></div>
+    <div class="col">
+        <small class="text-muted">
+            {{ ('customer_group_rank.admin.group.rank_condition.' ~ customer_group_rank_condition)|trans }}
+            <a href="{{ url('customer_group_rank42_admin_config') }}">{{ 'customer_group_rank.admin.group.rank_condition.change'|trans }}</a>
+        </small>
+    </div>
+</div>
+{% endif %}
 
 <div class="row mb-2" id="customer_group_rank_delivery_free_amount">
     <div class="col-3">

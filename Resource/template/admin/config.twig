@@ -1,0 +1,67 @@
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['store', 'plugin', 'plugin_list'] %}
+
+{% block title %}{{ 'customer_group_rank.admin.config.title'|trans }}{% endblock %}
+{% block sub_title %}{{ 'admin.store.plugin.plugin_list'|trans }}{% endblock %}
+
+{% block main %}
+    {% if form is null %}
+        <div class="c-contentsArea__cols">
+            <div class="c-contentsArea__primaryCol">
+                <div class="alert alert-warning" role="alert">
+                    {{ 'customer_group_rank.admin.config.table_missing'|trans }}
+                </div>
+            </div>
+        </div>
+    {% else %}
+    {% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
+    <form role="form" method="post">
+        {{ form_widget(form._token) }}
+
+        <div class="c-contentsArea__cols">
+            <div class="c-contentsArea__primaryCol">
+                <div class="c-primaryCol">
+                    <div class="card rounded border-0 mb-4">
+                        <div class="card-header"><span>{{ 'customer_group_rank.admin.config.title'|trans }}</span></div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-3">
+                                    <span>{{ 'customer_group_rank.admin.config.rank_condition'|trans }}</span>
+                                </div>
+                                <div class="col">
+                                    {{ form_widget(form.rankCondition) }}
+                                    {{ form_errors(form.rankCondition) }}
+                                    <div class="mt-2"><small class="text-muted">{{ 'customer_group_rank.admin.config.rank_condition_note'|trans|nl2br }}</small></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="c-conversionArea">
+            <div class="c-conversionArea__container">
+                <div class="row justify-content-between align-items-center">
+                    <div class="col-6">
+                        <div class="c-conversionArea__leftBlockItem">
+                            <a class="c-baseLink" href="{{ url('admin_store_plugin') }}">
+                                <i class="fa fa-backward" aria-hidden="true"></i>
+                                <span>{{ 'admin.store.plugin.plugin_list'|trans }}</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row align-items-center justify-content-end">
+                            <div class="col-auto">
+                                <button class="btn btn-ec-conversion px-5" type="submit">{{ 'admin.common.registration'|trans }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+{% endblock %}

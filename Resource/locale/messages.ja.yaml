@@ -1,0 +1,12 @@
+customer_group_rank.admin.config.title: 会員ランク設定
+customer_group_rank.admin.config.rank_condition: ランクの条件
+customer_group_rank.admin.config.rank_condition.and: 購入回数と購入金額の両方を満たしたとき（AND）
+customer_group_rank.admin.config.rank_condition.or: 購入回数か購入金額のどちらかを満たしたとき（OR）
+customer_group_rank.admin.config.rank_condition_note: |
+  会員グループに入れた「購入回数」と「購入金額」の組み合わせ方です。会員が次にログインしたときから効きます。
+  AND では、空欄の条件は使いません（片方だけ入れたグループは、その条件だけで判定します）。
+  OR から AND に切り替えると、片方しか満たしていない会員は次のログインでそのランクから外れます（ランクに紐づく価格・送料・支払方法も変わります）。
+customer_group_rank.admin.config.table_missing: 設定のテーブルがまだありません。いまは「購入回数か購入金額のどちらか（OR）」で判定しています。設定を変えるには、bin/console eccube:plugin:schema-update CustomerGroupRank42 を実行してください。
+customer_group_rank.admin.group.rank_condition.and: ランクの条件：購入回数と購入金額の両方（AND）。空欄の条件は使いません。
+customer_group_rank.admin.group.rank_condition.or: ランクの条件：購入回数か購入金額のどちらか（OR）。
+customer_group_rank.admin.group.rank_condition.change: 変更する
