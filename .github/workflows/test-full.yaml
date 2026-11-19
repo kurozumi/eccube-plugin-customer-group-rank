@@ -25,7 +25,8 @@ jobs:
       fail-fast: false
       matrix:
         eccube-versions: [ '4.4' ]
-        php-versions: [ '8.2', '8.3' ]
+        # EC-CUBE 4.4 のシステム要件（PHP 8.2 〜 8.5。EC-CUBE/ec-cube#6762）に合わせる
+        php-versions: [ '8.2', '8.3', '8.4', '8.5' ]
         # EC-CUBE 4.4 が検証している DB に合わせる。
         # MySQL 5.7 は 4.4 では対象外。PostgreSQL は 13 が下限なので上限とあわせて見る。
         database: [ 'mysql', 'pgsql', 'pgsql13' ]
